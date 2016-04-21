@@ -1,0 +1,30 @@
+{
+  "name": "personiv-file-manager",
+  "homepage": "https://github.com/mcoyevans/personiv-file-manager",
+  "authors": [
+    "Marco Paco <marcopaco1230@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-material": "^1.0.7",
+    "angular-ui-router": "^0.2.18",
+    "ngInfiniteScroll": "^1.2.2",
+    "bootstrap": "^3.3.6",
+    "angular-file-upload": "^2.2.0",
+    "angular-cookies": "^1.5.3",
+    "angular-tour": "^0.2.5",
+    "angular-messages": "^1.5.3",
+    "mdi": "^1.5.54"
+  }
+}

@@ -1,0 +1,29 @@
+<div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap>
+	<!-- All Records -->
+	<md-card ng-repeat="category in categories | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewCategory(category.id)" ng-if="show.categories">
+		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
+			<div class="circle" layout="row" layout-align="center center">
+				<span class="md-display-3 primary-text">{{category.first_letter}}</span>
+			</div>
+		</div>
+		<md-card-content>
+			<h2 class="md-display-1">{{category.name}}</h2>
+			<h3 class="md-subhead">{{category.description}}</h3>
+			<p class="md-body-1">{{category.created_at_formatted}}</p>
+		</md-card-content>
+	</md-card>
+
+	<!-- Search Records -->
+	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewCategory(item.id)" ng-if="!show.categories && results.length">
+		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
+			<div class="circle" layout="row" layout-align="center center">
+				<span class="md-display-3 primary-text">{{item.first_letter}}</span>
+			</div>
+		</div>
+		<md-card-content>
+			<h2 class="md-display-1">{{item.name}}</h2>
+			<h3 class="md-subhead">{{item.description}}</h3>
+			<p class="md-body-1">{{item.created_at_formatted}}</p>
+		</md-card-content>
+	</md-card>
+</div>

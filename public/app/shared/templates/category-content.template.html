@@ -1,0 +1,25 @@
+<div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="document.show" infinite-scroll='document.paginateLoad()' infinite-scroll-distance="2" infinite-scroll-disabled="document.busy" infinite-scroll-parent>
+	<!-- All Records -->
+	<md-card ng-repeat="document in document.data | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewDocument(document.id)" ng-if="show.documents">
+		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
+			<div class="circle" layout="row" layout-align="center center">
+				<span class="md-display-3 primary-text">{{document.first_letter}}</span>
+			</div>
+		</div>
+		<md-card-content>
+			<h2 class="md-display-1">{{document.name}}</h2>
+			<h3 class="md-subhead">{{document.description}}</h3>
+			<p class="md-body-1">{{document.created_at_formatted}}</p>
+		</md-card-content>
+	</md-card>
+</div>
+<div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="document.results && !document.show">
+	<!-- Search Records -->
+	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewDocument(item.id)" ng-if="!show.documents && results.length">
+		<md-card-content>
+			<h2 class="md-display-1">{{item.name}}</h2>
+			<h3 class="md-subhead">{{item.description}}</h3>
+			<p class="md-body-1">{{item.created_at_formatted}}</p>
+		</md-card-content>
+	</md-card>
+</div>

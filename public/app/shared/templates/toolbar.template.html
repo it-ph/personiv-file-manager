@@ -1,0 +1,54 @@
+<div layout="row" layout-align="start center" flex>
+	<a ui-sref="main" layout="row" layout-align="center center" class="site-logo">
+		<img src="/assets/img/Personiv-icon_large.png" alt="Personiv Logo">
+	</a>
+	<span flex="5"></span>
+	<!-- Toggle Left Sidenav Button -->
+	<!-- <md-button class="md-icon-button" ng-click="toggleSidenav('left')" hide-gt-md>
+		<md-icon class="mdi mdi-menu grey mdi-24px" aria-label="Toogle Sidenav"></md-icon>
+	</md-button> -->
+	<!-- <md-button class="md-icon-button" ui-sref="main" ng-if="toolbar.showBack">
+		<md-icon class="mdi mdi-arrow-left grey mdi-24px" aria-label="Back"></md-icon>
+		<md-tooltip>Back to home</md-tooltip>
+	</md-button> -->
+	<span class="md-headline main-text"> <span hide-md hide-sm hide-xs>{{ toolbar.parentState }}</span>
+		<md-icon class="mdi mdi-chevron-right grey" aria-label="chevron right" ng-if="toolbar.parentState && toolbar.childState" hide-md hide-sm hide-xs></md-icon>
+		<span ng-if="toolbar.childState" class="fade-transition">{{ toolbar.childState }}</span>
+	</span>
+	<span flex="5"></span>
+	<md-button class="md-icon-button" ng-click="refresh()">
+		<md-icon class="mdi mdi-refresh grey mdi-24px" aria-label="Refresh"></md-icon>
+		<md-tooltip>Refresh</md-tooltip>
+	</md-button>
+	<div flex flex-gt-sm="30">
+		<div class="input-group">
+		    <input type="text" class="form-control" placeholder="Search for..." ng-model="toolbar.userInput">
+		    <span class="input-group-btn">
+		        <button class="btn btn-default" type="button" ng-click="searchUserInput()">
+		        	<i class="mdi mdi-dark mdi-magnify mdi-18px"></i>
+		        </button>
+		    </span>
+		</div>
+	</div>
+	<span flex-gt-sm hide-sm></span>
+	<md-menu md-position-mode="target-right target" ng-if="user">
+	    <md-button aria-label="User Action" ng-click="openMenu($mdOpenMenu, $event)">
+			<span class="secondary-text">{{user.first_name}} {{user.last_name}}</span>
+	        <md-icon class="mdi mdi-chevron-down mdi-24px grey"></md-icon>
+	    </md-button>
+	    <md-menu-content width="4">
+	        <md-menu-item>
+	        	<md-button ng-click="changePassword()">
+					<md-icon class="mdi mdi-key-change grey mdi-24px" aria-label="Change Password"></md-icon>
+					<span class="secondary-text">Change Password</span>
+				</md-button>
+	        </md-menu-item>
+	        <md-menu-item>
+				<md-button href="/logout">
+					<md-icon class="mdi mdi-logout grey mdi-24px" aria-label="Logout"></md-icon>
+					<span class="secondary-text">Logout</span>
+				</md-button>
+	        </md-menu-item>
+	    </md-menu-content>
+	</md-menu>
+</div>
