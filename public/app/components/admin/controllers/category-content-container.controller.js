@@ -9,11 +9,11 @@ adminModule
 		$scope.toolbar.showBack = true;
 
 		$scope.searchUserInput = function(){
-			$scope.toolbar.categories.show = false;
+			$scope.document.show = false;
 			Preloader.loading();
 			Document.search($scope.toolbar)
 				.success(function(data){
-					$scope.results = data;
+					$scope.document.results = data;
 					Preloader.stop();
 				})
 				.error(function(){
@@ -112,4 +112,9 @@ adminModule
 	          	$scope.refresh();
 	        });
 		};	
+
+		$scope.openFile = function(id){
+			var win = window.open('/document-view/' + id);
+			win.focus();
+		}
 	}]);

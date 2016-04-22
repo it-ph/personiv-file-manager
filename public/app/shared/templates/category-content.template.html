@@ -1,25 +1,54 @@
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="document.show" infinite-scroll='document.paginateLoad()' infinite-scroll-distance="2" infinite-scroll-disabled="document.busy" infinite-scroll-parent>
 	<!-- All Records -->
-	<md-card ng-repeat="document in document.data | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewDocument(document.id)" ng-if="show.documents">
-		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
-			<div class="circle" layout="row" layout-align="center center">
-				<span class="md-display-3 primary-text">{{document.first_letter}}</span>
-			</div>
+	<md-card ng-repeat="document in document.paginated | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20">
+		<div layout="row" layout-align="center center" layout-padding class="card-file-image">		
+			<div class="circle" layout="row" layout-align="center center"></div>
 		</div>
 		<md-card-content>
-			<h2 class="md-display-1">{{document.name}}</h2>
-			<h3 class="md-subhead">{{document.description}}</h3>
+			<h2 class="md-headline">{{document.file_name}}</h2>
 			<p class="md-body-1">{{document.created_at_formatted}}</p>
+			<md-chips ng-model="document.tags" readonly="true"></md-chips>
 		</md-card-content>
+		<md-card-actions layout="row" layout-align="end center">
+			<md-button class="md-icon-button" ng-click="openFile(document.id)">
+				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
+				<md-tooltip>Open in new tab</md-tooltip>
+			</md-button>
+			<md-button class="md-icon-button" ng-if="user.role=='admin'">
+				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(document.id)"></md-icon>
+				<md-tooltip>Edit</md-tooltip>
+			</md-button>
+			<md-button class="md-icon-button" ng-if="user.role=='admin'" ng-click="delete(document.id)">
+				<md-icon class="mdi mdi-delete mdi-24px"></md-icon>
+				<md-tooltip>Delete</md-tooltip>
+			</md-button>
+		</md-card-actions>
 	</md-card>
 </div>
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="document.results && !document.show">
 	<!-- Search Records -->
-	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewDocument(item.id)" ng-if="!show.documents && results.length">
+	<md-card ng-repeat="item in document.results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20">
+		<div layout="row" layout-align="center center" layout-padding class="card-file-image">		
+			<div class="circle" layout="row" layout-align="center center"></div>
+		</div>
 		<md-card-content>
-			<h2 class="md-display-1">{{item.name}}</h2>
-			<h3 class="md-subhead">{{item.description}}</h3>
+			<h2 class="md-headline">{{item.file_name}}</h2>
 			<p class="md-body-1">{{item.created_at_formatted}}</p>
+			<!-- <md-chips ng-model="item.tags" readonly="true"></md-chips> -->
 		</md-card-content>
+		<md-card-actions layout="row" layout-align="end center">
+			<md-button class="md-icon-button" ng-click="openFile(item.id)">
+				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
+				<md-tooltip>Open in new tab</md-tooltip>
+			</md-button>
+			<md-button class="md-icon-button" ng-if="user.role=='admin'">
+				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.id)"></md-icon>
+				<md-tooltip>Edit</md-tooltip>
+			</md-button>
+			<md-button class="md-icon-button" ng-if="user.role=='admin'" ng-click="delete(item.id)">
+				<md-icon class="mdi mdi-delete mdi-24px"></md-icon>
+				<md-tooltip>Delete</md-tooltip>
+			</md-button>
+		</md-card-actions>
 	</md-card>
 </div>

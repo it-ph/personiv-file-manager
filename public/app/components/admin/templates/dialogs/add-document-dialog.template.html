@@ -14,9 +14,10 @@
 				<!-- Name -->
 				<md-input-container>
 					<label>Title</label>
-					<input type="text" name="Title" required ng-model="document.name">
+					<input type="text" name="Title" required ng-model="document.file_name" ng-pattern="/^[a-zA-Z0-9-_. ]+$/">
 					<div ng-messages="addDocumentForm.Title.$error" ng-if="addDocumentForm.Title.$touched">
 						<div ng-message="required">Title for this file is required.</div>
+						<div ng-message="pattern">Characters, numbers, spaces, periods, dashes and underscores only.</div>
 					</div>
 				</md-input-container>
 
@@ -42,7 +43,7 @@
 					</md-card>
 				</div>
 				<input type="file" nv-file-select uploader="pdfUploader" ng-if="!pdfUploader.queue.length"/>
-				<div class="pattern" ng-if="fileError">Only pdf files can be uploaded.</div>				
+				<div class="pattern" ng-if="fileError">Only PDF files can be uploaded.</div>				
 			</div>
 		</md-dialog-content>
 	</form>

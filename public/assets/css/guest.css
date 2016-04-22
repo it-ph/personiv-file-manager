@@ -273,10 +273,18 @@ md-content.primary-bg {
   border-radius: 50%;
   width: 70px; }
 
-.card-category-image {
+.card-category-image, .card-file-image {
   background: url("/assets/img/12962677_1346057515409653_1762174790_o.jpg");
   background-size: cover;
   height: 150px; }
+
+.card-file-image {
+  background: white; }
+  .card-file-image .circle {
+    background: url("/assets/img/pdf-icon.png");
+    background-size: cover;
+    width: 100px;
+    height: 100px; }
 
 /* transition duration */
 .transition, .fade-transition, .main-view {

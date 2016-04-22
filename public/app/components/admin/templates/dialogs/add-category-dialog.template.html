@@ -14,9 +14,10 @@
 				<!-- Name -->
 				<md-input-container>
 					<label>Name</label>
-					<input type="text" name="CategoryName" required ng-model="category.name">
+					<input type="text" name="CategoryName" required ng-model="category.name" ng-pattern="/^[a-zA-Z0-9-_. ]+$/">
 					<div ng-messages="addCategoryForm.CategoryName.$error" ng-if="addCategoryForm.CategoryName.$touched">
 						<div ng-message="required">Name for a category is required.</div>
+						<div ng-message="pattern">Characters, numbers, spaces, periods, dashes and underscores only.</div>
 					</div>
 				</md-input-container>
 

@@ -1,5 +1,5 @@
 adminModule
-	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Preloader', function($scope, $state, $mdDialog, Category, Preloader){
+	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
 		$scope.show = {};
 		
 		// Init the content of the page
@@ -38,9 +38,9 @@ adminModule
 		$scope.toolbar.childState = 'Home';
 
 		$scope.searchUserInput = function(){
-			$scope.show.categories.show = false;
+			$scope.show.categories = false;
 			Preloader.loading();
-			Category.search($scope.toolbar)
+			Document.search($scope.toolbar)
 				.success(function(data){
 					$scope.results = data;
 					Preloader.stop();
@@ -69,4 +69,9 @@ adminModule
 		$scope.viewCategory = function(id){
 			$state.go('main.category', {'categoryID': id});
 		};
+
+		$scope.openFile = function(id){
+			var win = window.open('/document-view/' + id);
+			win.focus();
+		}
 	}]);

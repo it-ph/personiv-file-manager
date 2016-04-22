@@ -51,11 +51,11 @@ adminModule
 		$scope.toolbar.showBack = true;
 
 		$scope.searchUserInput = function(){
-			$scope.toolbar.categories.show = false;
+			$scope.document.show = false;
 			Preloader.loading();
 			Document.search($scope.toolbar)
 				.success(function(data){
-					$scope.results = data;
+					$scope.document.results = data;
 					Preloader.stop();
 				})
 				.error(function(){
@@ -154,9 +154,14 @@ adminModule
 	          	$scope.refresh();
 	        });
 		};	
+
+		$scope.openFile = function(id){
+			var win = window.open('/document-view/' + id);
+			win.focus();
+		}
 	}]);
 adminModule
-	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Preloader', function($scope, $state, $mdDialog, Category, Preloader){
+	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
 		$scope.show = {};
 		
 		// Init the content of the page
@@ -195,9 +200,9 @@ adminModule
 		$scope.toolbar.childState = 'Home';
 
 		$scope.searchUserInput = function(){
-			$scope.show.categories.show = false;
+			$scope.show.categories = false;
 			Preloader.loading();
-			Category.search($scope.toolbar)
+			Document.search($scope.toolbar)
 				.success(function(data){
 					$scope.results = data;
 					Preloader.stop();
@@ -226,6 +231,11 @@ adminModule
 		$scope.viewCategory = function(id){
 			$state.go('main.category', {'categoryID': id});
 		};
+
+		$scope.openFile = function(id){
+			var win = window.open('/document-view/' + id);
+			win.focus();
+		}
 	}]);
 adminModule
 	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
@@ -268,6 +278,7 @@ adminModule
 adminModule
 	.controller('addDocumentDialogController', ['$scope', '$stateParams', '$mdDialog', 'FileUploader', 'Document', 'Preloader', function($scope, $stateParams, $mdDialog, FileUploader, Document, Preloader){
 		$scope.document = {};
+		$scope.document.category_id = $stateParams.categoryID;
 		$scope.document.tags = [];
 
 		var busy = false;
@@ -324,16 +335,16 @@ adminModule
 					/**
 					 * Stores Single Record
 					*/
-					// Document.store($scope.category)
-					// 	.success(function(){
-					// 		$scope.questionUploader.uploadAll();
-					// 		// Stops Preloader 
-					// 		Preloader.stop();
-					// 		busy = false;
-					// 	})
-					// 	.error(function(){
-					// 		Preloader.error()
-					// 	});
+					Document.store($scope.document)
+						.success(function(){
+							$scope.pdfUploader.uploadAll();
+							// Stops Preloader 
+							Preloader.stop();
+							busy = false;
+						})
+						.error(function(){
+							Preloader.error()
+						});
 				}
 			}
 		};

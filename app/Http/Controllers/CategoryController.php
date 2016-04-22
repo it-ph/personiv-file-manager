@@ -10,18 +10,18 @@ use App\Http\Requests;
 
 class CategoryController extends Controller
 {
-    public function search(Request $request)
-    {
-        return DB::table('categories')
-            ->select(
-                '*',
-                DB::raw('UPPER(LEFT(name, 1)) as first_letter'),
-                DB::raw('DATE_FORMAT(created_at, "%b. %d, %Y") as created_at_formatted')
-            )
-            ->where('name', 'like', '%'. $request->userInput. '%')
-            ->where('description', 'like', '%'. $request->userInput. '%')
-            ->get();
-    }
+    // public function search(Request $request)
+    // {
+    //     return DB::table('categories')
+    //         ->select(
+    //             '*',
+    //             DB::raw('UPPER(LEFT(name, 1)) as first_letter'),
+    //             DB::raw('DATE_FORMAT(created_at, "%b. %d, %Y") as created_at_formatted')
+    //         )
+    //         ->where('name', 'like', '%'. $request->userInput. '%')
+    //         ->where('description', 'like', '%'. $request->userInput. '%')
+    //         ->get();
+    // }
     /**
      * Display a listing of the resource.
      *

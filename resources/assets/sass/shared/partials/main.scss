@@ -298,3 +298,15 @@ md-content.primary-bg{
 	background-size: cover; 
 	height:150px;
 }
+
+.card-file-image{
+	@extend .card-category-image;
+	background: white;
+
+	.circle{
+		background: url('/assets/img/pdf-icon.png');
+		background-size:cover;
+		width: 100px;
+		height: 100px;
+	}
+}

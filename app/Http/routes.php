@@ -43,10 +43,14 @@ Route::get('/home', 'HomeController@index');
 	Route::resource('user', 'UserController');
 
 	/* Search */
-	Route::post('category-search', 'CategoryController@search');
+	Route::post('document-search', 'DocumentController@search');
 
 	Route::post('user-check-password', 'UserController@checkPassword');
 	Route::post('user-change-password', 'UserController@changePassword');
+
+	/* File Handling */
+	Route::post('/document-upload', 'DocumentController@upload');
+	Route::get('/document-view/{id}', 'DocumentController@view');
 
 	/* Pagination */
 	Route::get('document-paginate/{categoryID}', 'DocumentController@paginate');

@@ -1,6 +1,7 @@
 adminModule
 	.controller('addDocumentDialogController', ['$scope', '$stateParams', '$mdDialog', 'FileUploader', 'Document', 'Preloader', function($scope, $stateParams, $mdDialog, FileUploader, Document, Preloader){
 		$scope.document = {};
+		$scope.document.category_id = $stateParams.categoryID;
 		$scope.document.tags = [];
 
 		var busy = false;
@@ -57,16 +58,16 @@ adminModule
 					/**
 					 * Stores Single Record
 					*/
-					// Document.store($scope.category)
-					// 	.success(function(){
-					// 		$scope.questionUploader.uploadAll();
-					// 		// Stops Preloader 
-					// 		Preloader.stop();
-					// 		busy = false;
-					// 	})
-					// 	.error(function(){
-					// 		Preloader.error()
-					// 	});
+					Document.store($scope.document)
+						.success(function(){
+							$scope.pdfUploader.uploadAll();
+							// Stops Preloader 
+							Preloader.stop();
+							busy = false;
+						})
+						.error(function(){
+							Preloader.error()
+						});
 				}
 			}
 		};
