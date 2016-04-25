@@ -7,12 +7,19 @@
 		<md-card-content>
 			<h2 class="md-headline">{{document.file_name}}</h2>
 			<p class="md-body-1">{{document.created_at_formatted}}</p>
-			<md-chips ng-model="document.tags" readonly="true"></md-chips>
+			<div layout="row" layout-align="end center">
+				<md-switch ng-model="document.showTags" aria-label="Show Tags">
+				    <span ng-if="!document.showTags">Show</span>
+				    <span ng-if="document.showTags">Hide</span>
+				     Tags
+			    </md-switch>
+			</div>
+			<md-chips ng-model="document.tags" readonly="true" ng-if="document.showTags"></md-chips>
 		</md-card-content>
 		<md-card-actions layout="row" layout-align="end center">
 			<md-button class="md-icon-button" ng-click="openFile(document.id)">
 				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
-				<md-tooltip>Open in new tab</md-tooltip>
+				<md-tooltip>Open</md-tooltip>
 			</md-button>
 			<md-button class="md-icon-button" ng-if="user.role=='admin'">
 				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(document.id)"></md-icon>
@@ -34,12 +41,19 @@
 		<md-card-content>
 			<h2 class="md-headline">{{item.file_name}}</h2>
 			<p class="md-body-1">{{item.created_at_formatted}}</p>
-			<!-- <md-chips ng-model="item.tags" readonly="true"></md-chips> -->
+			<div layout="row" layout-align="end center">
+				<md-switch ng-model="item.showTags" aria-label="Show Tags">
+				    <span ng-if="!document.showTags">Show</span>
+				    <span ng-if="document.showTags">Hide</span>
+				    Tags
+			    </md-switch>
+			</div>
+			<md-chips ng-model="item.tags" readonly="true" ng-if="item.showTags"></md-chips>
 		</md-card-content>
 		<md-card-actions layout="row" layout-align="end center">
 			<md-button class="md-icon-button" ng-click="openFile(item.id)">
 				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
-				<md-tooltip>Open in new tab</md-tooltip>
+				<md-tooltip>Open</md-tooltip>
 			</md-button>
 			<md-button class="md-icon-button" ng-if="user.role=='admin'">
 				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.id)"></md-icon>

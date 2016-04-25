@@ -3,11 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Tag;
+use DB;
 use App\Http\Requests;
 
 class TagController extends Controller
 {
+    public function document($id)
+    {
+        $tags = Tag::where('document_id', $id)->get();
+
+        $tag_array = array();
+
+        foreach ($tags as $key => $value) {
+            array_push($tag_array, $value->name);
+        }
+
+        return $tag_array;
+    }
     /**
      * Display a listing of the resource.
      *

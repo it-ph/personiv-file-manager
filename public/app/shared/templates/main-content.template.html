@@ -1,32 +1,38 @@
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap>
 	<!-- All Records -->
-	<md-card ng-repeat="category in categories | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewCategory(category.id)" ng-if="show.categories">
+	<md-card ng-repeat="category in categories | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-if="show.categories">
 		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
 			<div class="circle" layout="row" layout-align="center center">
-				<span class="md-display-3 primary-text">{{category.first_letter}}</span>
+				<!-- <span class="md-display-3 primary-text">{{category.first_letter}}</span> -->
 			</div>
 		</div>
 		<md-card-content>
-			<h2 class="md-display-1">{{category.name}}</h2>
-			<h3 class="md-subhead">{{category.description}}</h3>
-			<p class="md-body-1">{{category.created_at_formatted}}</p>
+			<h2 class="md-headline">{{category.name}}</h2>
+			<p class="md-body-1" >{{category.created_at_formatted}}</p>
+			<h3 class="md-subhead">{{category.description | limitTo:category.charLimit}}
+				<span ng-if="category.description.length > 25 && category.charLimit">...</span>
+				<a href="" ng-click="category.charLimit = null" ng-if="category.charLimit && category.description.length >= 25">Read more</a>
+				<a href="" ng-click="category.charLimit = 25" ng-if="!category.charLimit && category.description.length >= 25">Read less</a>
+			</h3>
 		</md-card-content>
+		<md-card-actions layout="row" layout-align="end center">
+			<md-button class="md-icon-button" ng-click="viewCategory(category.id)">
+				<md-icon class="mdi mdi-open-in-app mdi-24px"></md-icon>
+				<md-tooltip>Open</md-tooltip>
+			</md-button>
+			<md-button class="md-icon-button" ng-if="user.role=='admin'">
+				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="editFolder(category.id)"></md-icon>
+				<md-tooltip>Edit</md-tooltip>
+			</md-button>
+			<!-- <md-button class="md-icon-button" ng-if="user.role=='admin'" ng-click="delete(item.id)">
+				<md-icon class="mdi mdi-delete mdi-24px"></md-icon>
+				<md-tooltip>Delete</md-tooltip>
+			</md-button> -->
+		</md-card-actions>
 	</md-card>
 
-	<!-- Search Records -->
-<!-- 	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-click="viewCategory(item.id)" ng-if="!show.categories && results.length">
-		<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
-			<div class="circle" layout="row" layout-align="center center">
-				<span class="md-display-3 primary-text">{{item.first_letter}}</span>
-			</div>
-		</div>
-		<md-card-content>
-			<h2 class="md-display-1">{{item.name}}</h2>
-			<h3 class="md-subhead">{{item.description}}</h3>
-			<p class="md-body-1">{{item.created_at_formatted}}</p>
-		</md-card-content>
-	</md-card> -->
 </div>
+
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="results && !show.categories">
 	<!-- Search Records -->
 	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20">
@@ -36,12 +42,19 @@
 		<md-card-content>
 			<h2 class="md-headline">{{item.file_name}}</h2>
 			<p class="md-body-1">{{item.created_at_formatted}}</p>
-			<!-- <md-chips ng-model="item.tags" readonly="true"></md-chips> -->
+			<div layout="row" layout-align="end center">
+				<md-switch ng-model="item.showTags" aria-label="Show Tags">
+				    <span ng-if="!item.showTags">Show</span>
+				    <span ng-if="item.showTags">Hide</span>
+				    Tags
+			    </md-switch>
+			</div>
+			<md-chips ng-model="item.tags" readonly="true" ng-if="item.showTags"></md-chips>
 		</md-card-content>
 		<md-card-actions layout="row" layout-align="end center">
 			<md-button class="md-icon-button" ng-click="openFile(item.id)">
 				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
-				<md-tooltip>Open in new tab</md-tooltip>
+				<md-tooltip>Open</md-tooltip>
 			</md-button>
 			<md-button class="md-icon-button" ng-if="user.role=='admin'">
 				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.id)"></md-icon>

@@ -159,15 +159,51 @@ adminModule
 			var win = window.open('/document-view/' + id);
 			win.focus();
 		}
+
+		$scope.edit = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editDocumentDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/edit-document-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
+		}
+
+		$scope.delete = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete File')
+		        .textContent('Are you sure you want to delete this file ?')
+		        .ariaLabel('Delete File')
+		        .ok('Delete')
+		        .cancel('Cancel');
+		    $mdDialog.show(confirm).then(function() {
+		    	Preloader.loading();
+		    	Document.delete(id)
+		    		.success(function(){
+		    			Preloader.stop();
+		    			$scope.refresh();
+		    		})
+		    		.error(function(){
+		    			Preloader.error();
+		    		});
+		    }, function() {
+		    	return;
+		    });
+		}
 	}]);
 adminModule
 	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
 		$scope.show = {};
-		
 		// Init the content of the page
 		Category.index()
 			.success(function(data){
 				$scope.categories = data;
+				angular.forEach(data, function(item){
+					item.charLimit = 25;
+				});
 				$scope.show.categories = true;
 			})
 			.error(function(){
@@ -183,6 +219,9 @@ adminModule
 				.success(function(data){
 					$scope.categories = data;
 					$scope.show.categories = true;
+					angular.forEach(data, function(item){
+						item.charLimit = 35;
+					});
 					/* stops both preloader*/
 					Preloader.stop();
 					Preloader.stop();
@@ -205,6 +244,9 @@ adminModule
 			Document.search($scope.toolbar)
 				.success(function(data){
 					$scope.results = data;
+					angular.forEach(data, function(item){
+						item.charLimit = 35;
+					});
 					Preloader.stop();
 				})
 				.error(function(){
@@ -235,6 +277,18 @@ adminModule
 		$scope.openFile = function(id){
 			var win = window.open('/document-view/' + id);
 			win.focus();
+		}
+
+		$scope.editFolder = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editCategoryDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/add-category-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
 		}
 	}]);
 adminModule
@@ -391,5 +445,139 @@ adminModule
 					});
 			}
 		}
+	}]);
+adminModule
+	.controller('editCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
+		var categoryID = Preloader.get();
+
+		Category.show(categoryID)
+			.success(function(data){
+				$scope.category = data;
+			});
+		
+		var busy = false;
+
+		$scope.cancel = function(){
+			$mdDialog.cancel();
+		}
+
+		$scope.submit = function(){
+			if($scope.addCategoryForm.$invalid){
+				angular.forEach($scope.addCategoryForm.$error, function(field){
+					angular.forEach(field, function(errorField){
+						errorField.$setTouched();
+					});
+				});
+			}
+			else{
+				/* Starts Preloader */
+				Preloader.loading();
+				/**
+				 * Stores Single Record
+				*/
+				if(!busy){
+					busy = true;
+					Category.update(categoryID, $scope.category)
+						.success(function(){
+							// Stops Preloader 
+							Preloader.stop();
+							busy = false;
+						})
+						.error(function(){
+							Preloader.error()
+						});
+				}
+			}
+		}
+	}]);
+adminModule
+	.controller('editDocumentDialogController', ['$scope', '$stateParams', '$mdDialog', 'FileUploader', 'Document', 'Tag', 'Preloader', function($scope, $stateParams, $mdDialog, FileUploader, Document, Tag, Preloader){
+		var documentID = Preloader.get();
+		$scope.document = {}
+		// $scope.document.category_id = $stateParams.categoryID;
+		$scope.document.tags = [];
+
+		Document.show(documentID)
+			.success(function(data){
+				$scope.document = data;
+				$scope.document.tags = [];
+				Tag.document(documentID)
+					.success(function(data){
+						$scope.document.tags = data;
+					})
+			})
+			.error(function(){
+				Preloader.error();
+			});
+
+
+
+		var busy = false;
+
+		$scope.cancel = function(){
+			$mdDialog.cancel();
+		}
+
+		var uploader = {};
+
+		uploader.filter = {
+            name: 'imageFilter',
+            fn: function(item /*{File|FileLikeObject}*/, options) {
+                var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
+                return '|pdf|'.indexOf(type) !== -1;
+            }
+        };
+
+        uploader.error = function(item /*{File|FileLikeObject}*/, filter, options) {
+            $scope.fileError = true;
+            $scope.pdfUploader.queue = [];
+        };
+
+        uploader.headers = { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')};
+
+		/* Question Uploader */
+		$scope.pdfUploader = new FileUploader({
+			url: '/document-upload',
+			headers: uploader.headers,
+			queueLimit : 1
+		})
+		// FILTERS
+        $scope.pdfUploader.filters.push(uploader.filter);
+        
+		$scope.pdfUploader.onWhenAddingFileFailed = uploader.error;
+		$scope.pdfUploader.onAfterAddingFile  = function(){
+			$scope.fileError = false;
+		};
+        
+		$scope.submit = function(){
+			$scope.showErrors = true;
+			if($scope.addDocumentForm.$invalid){
+				angular.forEach($scope.addDocumentForm.$error, function(field){
+					angular.forEach(field, function(errorField){
+						errorField.$setTouched();
+					});
+				});
+			}
+			else{
+				if(!busy && $scope.pdfUploader.queue.length){
+					busy = true;
+					/* Starts Preloader */
+					Preloader.saving();
+					/**
+					 * Stores Single Record
+					*/
+					Document.store($scope.document)
+						.success(function(){
+							$scope.pdfUploader.uploadAll();
+							// Stops Preloader 
+							Preloader.stop();
+							busy = false;
+						})
+						.error(function(){
+							Preloader.error()
+						});
+				}
+			}
+		};
 	}]);
 //# sourceMappingURL=admin.js.map

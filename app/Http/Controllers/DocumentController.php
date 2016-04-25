@@ -16,7 +16,7 @@ class DocumentController extends Controller
 {
     public function search(Request $request)
     {
-        return $document = DB::table('documents')
+        $document = DB::table('documents')
             ->join('tags', 'tags.document_id', '=', 'documents.id')
             ->select(
                 '*',
@@ -30,7 +30,7 @@ class DocumentController extends Controller
             ->get();
 
             foreach ($document as $document_key => $document_value) {
-                $tags = Tag::where('document_id', $document_value->id)->get();
+                $tags = Tag::where('document_id', $document_value->document_id)->get();
                 
                 $document_value->tags = array();
                 
@@ -38,6 +38,8 @@ class DocumentController extends Controller
                     array_push($document_value->tags, $tags_value->name);
                 }
             }
+
+        return $document;
     }
     public function view($id)
     {
@@ -148,7 +150,7 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        //
+        return Document::where('id', $id)->first();
     }
 
     /**
@@ -182,6 +184,12 @@ class DocumentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $document = Document::where('id', $id)->first();
+        $tag = Tag::where('document_id', $document->id)->delete();
+
+        // delete File
+        Storage::delete($document->path);
+
+        $document->delete();
     }
 }

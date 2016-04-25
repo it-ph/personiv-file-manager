@@ -54,6 +54,9 @@ Route::get('/home', 'HomeController@index');
 
 	/* Pagination */
 	Route::get('document-paginate/{categoryID}', 'DocumentController@paginate');
+
+	/* Others*/
+	Route::get('tag-document/{documentID}', 'TagController@document');
 // });
 
 

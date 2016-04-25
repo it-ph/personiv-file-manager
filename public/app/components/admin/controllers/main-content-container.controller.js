@@ -1,11 +1,13 @@
 adminModule
 	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
 		$scope.show = {};
-		
 		// Init the content of the page
 		Category.index()
 			.success(function(data){
 				$scope.categories = data;
+				angular.forEach(data, function(item){
+					item.charLimit = 25;
+				});
 				$scope.show.categories = true;
 			})
 			.error(function(){
@@ -21,6 +23,9 @@ adminModule
 				.success(function(data){
 					$scope.categories = data;
 					$scope.show.categories = true;
+					angular.forEach(data, function(item){
+						item.charLimit = 35;
+					});
 					/* stops both preloader*/
 					Preloader.stop();
 					Preloader.stop();
@@ -43,6 +48,9 @@ adminModule
 			Document.search($scope.toolbar)
 				.success(function(data){
 					$scope.results = data;
+					angular.forEach(data, function(item){
+						item.charLimit = 35;
+					});
 					Preloader.stop();
 				})
 				.error(function(){
@@ -73,5 +81,17 @@ adminModule
 		$scope.openFile = function(id){
 			var win = window.open('/document-view/' + id);
 			win.focus();
+		}
+
+		$scope.editFolder = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editCategoryDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/add-category-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
 		}
 	}]);

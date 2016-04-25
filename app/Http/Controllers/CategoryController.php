@@ -100,7 +100,17 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            'description' => 'required',
+        ]);
+
+        $category = Category::where('id', $id)->first();
+
+        $category->name = $request->name;
+        $category->description = $request->description;
+
+        $category->save();
     }
 
     /**

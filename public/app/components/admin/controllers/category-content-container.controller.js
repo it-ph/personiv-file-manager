@@ -117,4 +117,38 @@ adminModule
 			var win = window.open('/document-view/' + id);
 			win.focus();
 		}
+
+		$scope.edit = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editDocumentDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/edit-document-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
+		}
+
+		$scope.delete = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete File')
+		        .textContent('Are you sure you want to delete this file ?')
+		        .ariaLabel('Delete File')
+		        .ok('Delete')
+		        .cancel('Cancel');
+		    $mdDialog.show(confirm).then(function() {
+		    	Preloader.loading();
+		    	Document.delete(id)
+		    		.success(function(){
+		    			Preloader.stop();
+		    			$scope.refresh();
+		    		})
+		    		.error(function(){
+		    			Preloader.error();
+		    		});
+		    }, function() {
+		    	return;
+		    });
+		}
 	}]);

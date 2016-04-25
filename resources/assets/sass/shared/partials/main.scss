@@ -294,14 +294,18 @@ md-content.primary-bg{
 }
 
 .card-category-image {
-	background: url('/assets/img/12962677_1346057515409653_1762174790_o.jpg');
-	background-size: cover; 
 	height:150px;
+	background: white;
+	.circle {
+		background: url('/assets/img/folder.png');
+		background-size:cover;
+		width: 100px;
+		height: 100px;
+	}
 }
 
 .card-file-image{
 	@extend .card-category-image;
-	background: white;
 
 	.circle{
 		background: url('/assets/img/pdf-icon.png');
