@@ -212,6 +212,7 @@ adminModule
 
 		$scope.refresh = function(){
 			$scope.toolbar.userInput = '';
+			$scope.results = [];
 			$scope.show.categories = false;
 			$scope.categories = [];
         	Preloader.loading();
@@ -289,6 +290,40 @@ adminModule
 	        .then(function() {
 	          	$scope.refresh();
 	        });
+		}
+
+		$scope.edit = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editDocumentDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/edit-document-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
+		}
+
+		$scope.delete = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete File')
+		        .textContent('Are you sure you want to delete this file ?')
+		        .ariaLabel('Delete File')
+		        .ok('Delete')
+		        .cancel('Cancel');
+		    $mdDialog.show(confirm).then(function() {
+		    	Preloader.loading();
+		    	Document.delete(id)
+		    		.success(function(){
+		    			Preloader.stop();
+		    			$scope.refresh();
+		    		})
+		    		.error(function(){
+		    			Preloader.error();
+		    		});
+		    }, function() {
+		    	return;
+		    });
 		}
 	}]);
 adminModule
@@ -496,21 +531,33 @@ adminModule
 		$scope.document = {}
 		// $scope.document.category_id = $stateParams.categoryID;
 		$scope.document.tags = [];
+		$scope.referenceTag = [];
 
 		Document.show(documentID)
 			.success(function(data){
 				$scope.document = data;
 				$scope.document.tags = [];
+				$scope.document.file_removed = false;
 				Tag.document(documentID)
 					.success(function(data){
-						$scope.document.tags = data;
+						$scope.tags = data;
+						angular.forEach(data, function(item){
+							$scope.document.tags.push(item.name);
+						});
+						
 					})
 			})
 			.error(function(){
 				Preloader.error();
 			});
 
+		$scope.removeTag = function(idx){
+			$scope.referenceTag.push($scope.tags[idx]);
+		}
 
+		$scope.removeFile = function(){
+			$scope.document.file_removed = true;
+		}
 
 		var busy = false;
 
@@ -559,16 +606,28 @@ adminModule
 				});
 			}
 			else{
-				if(!busy && $scope.pdfUploader.queue.length){
+				if((!busy && $scope.pdfUploader.queue.length && $scope.document.file_removed) || (!busy && !$scope.document.file_removed)){
 					busy = true;
 					/* Starts Preloader */
 					Preloader.saving();
 					/**
 					 * Stores Single Record
 					*/
-					Document.store($scope.document)
+					if($scope.referenceTag.length){
+						angular.forEach($scope.referenceTag, function(item){
+							Tag.delete(item.id)
+								.error(function(){
+									Preloader.error;
+								});
+						});
+					}
+
+					Document.update(documentID, $scope.document)
 						.success(function(){
-							$scope.pdfUploader.uploadAll();
+							if($scope.pdfUploader.queue.length)
+							{
+								$scope.pdfUploader.uploadAll();
+							}
 							// Stops Preloader 
 							Preloader.stop();
 							busy = false;

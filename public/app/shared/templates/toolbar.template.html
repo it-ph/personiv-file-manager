@@ -20,16 +20,16 @@
 		<md-icon class="mdi mdi-refresh grey mdi-24px" aria-label="Refresh"></md-icon>
 		<md-tooltip>Refresh</md-tooltip>
 	</md-button>
-	<div flex flex-gt-sm="30">
+	<form flex flex-gt-sm="30">
 		<div class="input-group">
 		    <input type="text" class="form-control" placeholder="Search for..." ng-model="toolbar.userInput">
 		    <span class="input-group-btn">
-		        <button class="btn btn-default" type="button" ng-click="searchUserInput()">
+		        <button class="btn btn-default" type="submit" ng-click="searchUserInput()">
 		        	<i class="mdi mdi-dark mdi-magnify mdi-18px"></i>
 		        </button>
 		    </span>
 		</div>
-	</div>
+	</form>
 	<span flex-gt-sm hide-sm></span>
 	<md-menu md-position-mode="target-right target" ng-if="user">
 	    <md-button aria-label="User Action" ng-click="openMenu($mdOpenMenu, $event)">

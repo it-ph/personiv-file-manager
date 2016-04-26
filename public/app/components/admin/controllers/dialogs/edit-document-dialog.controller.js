@@ -4,21 +4,33 @@ adminModule
 		$scope.document = {}
 		// $scope.document.category_id = $stateParams.categoryID;
 		$scope.document.tags = [];
+		$scope.referenceTag = [];
 
 		Document.show(documentID)
 			.success(function(data){
 				$scope.document = data;
 				$scope.document.tags = [];
+				$scope.document.file_removed = false;
 				Tag.document(documentID)
 					.success(function(data){
-						$scope.document.tags = data;
+						$scope.tags = data;
+						angular.forEach(data, function(item){
+							$scope.document.tags.push(item.name);
+						});
+						
 					})
 			})
 			.error(function(){
 				Preloader.error();
 			});
 
+		$scope.removeTag = function(idx){
+			$scope.referenceTag.push($scope.tags[idx]);
+		}
 
+		$scope.removeFile = function(){
+			$scope.document.file_removed = true;
+		}
 
 		var busy = false;
 
@@ -67,16 +79,28 @@ adminModule
 				});
 			}
 			else{
-				if(!busy && $scope.pdfUploader.queue.length){
+				if((!busy && $scope.pdfUploader.queue.length && $scope.document.file_removed) || (!busy && !$scope.document.file_removed)){
 					busy = true;
 					/* Starts Preloader */
 					Preloader.saving();
 					/**
 					 * Stores Single Record
 					*/
-					Document.store($scope.document)
+					if($scope.referenceTag.length){
+						angular.forEach($scope.referenceTag, function(item){
+							Tag.delete(item.id)
+								.error(function(){
+									Preloader.error;
+								});
+						});
+					}
+
+					Document.update(documentID, $scope.document)
 						.success(function(){
-							$scope.pdfUploader.uploadAll();
+							if($scope.pdfUploader.queue.length)
+							{
+								$scope.pdfUploader.uploadAll();
+							}
 							// Stops Preloader 
 							Preloader.stop();
 							busy = false;

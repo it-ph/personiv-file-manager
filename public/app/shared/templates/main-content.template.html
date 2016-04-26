@@ -52,15 +52,15 @@
 			<md-chips ng-model="item.tags" readonly="true" ng-if="item.showTags"></md-chips>
 		</md-card-content>
 		<md-card-actions layout="row" layout-align="end center">
-			<md-button class="md-icon-button" ng-click="openFile(item.id)">
+			<md-button class="md-icon-button" ng-click="openFile(item.document_id)">
 				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
 				<md-tooltip>Open</md-tooltip>
 			</md-button>
 			<md-button class="md-icon-button" ng-if="user.role=='admin'">
-				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.id)"></md-icon>
+				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.document_id)"></md-icon>
 				<md-tooltip>Edit</md-tooltip>
 			</md-button>
-			<md-button class="md-icon-button" ng-if="user.role=='admin'" ng-click="delete(item.id)">
+			<md-button class="md-icon-button" ng-if="user.role=='admin'" ng-click="delete(item.document_id)">
 				<md-icon class="mdi mdi-delete mdi-24px"></md-icon>
 				<md-tooltip>Delete</md-tooltip>
 			</md-button>

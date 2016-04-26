@@ -20,4 +20,20 @@ guestModule
 					},
 				},
 			})
+			.state('main.category', {
+				url:'category/{categoryID}',
+				params: {'categoryID':null},
+				views: {
+					'content-container': {
+						templateUrl: '/app/shared/views/content-container.view.html',
+						controller: 'categoryContentContainerController',
+					},
+					'content@main.category': {
+						templateUrl: '/app/shared/templates/category-content.template.html',
+					},
+					'toolbar@main.category': {
+						templateUrl:'/app/shared/templates/toolbar.template.html',
+					},
+				},
+			})
 	}]);

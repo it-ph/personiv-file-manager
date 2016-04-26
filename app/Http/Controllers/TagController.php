@@ -11,15 +11,15 @@ class TagController extends Controller
 {
     public function document($id)
     {
-        $tags = Tag::where('document_id', $id)->get();
+        return $tags = Tag::where('document_id', $id)->get();
 
-        $tag_array = array();
+        // $tag_array = array();
 
-        foreach ($tags as $key => $value) {
-            array_push($tag_array, $value->name);
-        }
+        // foreach ($tags as $key => $value) {
+        //     array_push($tag_array, $value->name);
+        // }
 
-        return $tag_array;
+        // return $tag_array;
     }
     /**
      * Display a listing of the resource.
@@ -94,6 +94,6 @@ class TagController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Tag::where('id', $id)->delete();
     }
 }

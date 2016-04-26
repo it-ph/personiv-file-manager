@@ -173,7 +173,39 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'file_name' => 'required',
+            'category_id' => 'required|numeric',
+            'file_removed' => 'required|boolean',
+        ]);
+
+        $document = Document::where('id', $id)->first();
+
+        if($request->file_removed)
+        {
+            Storage::delete($document->path);
+        }
+
+        $category = Category::where('id', $request->category_id)->first();
+
+        $document->file_name = $request->file_name;
+        $document->category_id = $request->category_id;
+        $document->path = '/pdf/'. $category->name . '/'. $request->file_name . '.pdf';
+
+        $document->save();
+
+        foreach ($request->tags as $key => $value) {
+            $confirm_tag = Tag::where('name', $value)->first();
+            if(!$confirm_tag)
+            {
+                $tag = new Tag;
+                
+                $tag->document_id = $document->id;
+                $tag->name = $value;
+
+                $tag->save();
+            }
+        }
     }
 
     /**

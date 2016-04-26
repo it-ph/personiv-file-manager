@@ -16,6 +16,7 @@ adminModule
 
 		$scope.refresh = function(){
 			$scope.toolbar.userInput = '';
+			$scope.results = [];
 			$scope.show.categories = false;
 			$scope.categories = [];
         	Preloader.loading();
@@ -93,5 +94,39 @@ adminModule
 	        .then(function() {
 	          	$scope.refresh();
 	        });
+		}
+
+		$scope.edit = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editDocumentDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/edit-document-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function() {
+	          	$scope.refresh();
+	        });
+		}
+
+		$scope.delete = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete File')
+		        .textContent('Are you sure you want to delete this file ?')
+		        .ariaLabel('Delete File')
+		        .ok('Delete')
+		        .cancel('Cancel');
+		    $mdDialog.show(confirm).then(function() {
+		    	Preloader.loading();
+		    	Document.delete(id)
+		    		.success(function(){
+		    			Preloader.stop();
+		    			$scope.refresh();
+		    		})
+		    		.error(function(){
+		    			Preloader.error();
+		    		});
+		    }, function() {
+		    	return;
+		    });
 		}
 	}]);

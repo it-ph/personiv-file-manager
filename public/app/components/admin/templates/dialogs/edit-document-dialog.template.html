@@ -2,7 +2,7 @@
 	<form name="addDocumentForm" novalidate>
 		<md-toolbar class="white-toolbar">
 			<div class="md-toolbar-tools">
-				<h2 class="primary-text">New File</h2>
+				<h2 class="primary-text">Edit File</h2>
 				<span flex></span>
 				<md-button class="md-icon-button" ng-click="cancel()">
 					<md-icon class="mdi mdi-close mdi-24px grey" aria-label="cancel"></md-icon>
@@ -23,13 +23,23 @@
 
 				<md-input-container>
 					<label>Tags</label>
-					<md-chips ng-model="document.tags" name="Tags" placeholder="Enter a tag" delete-button-label="Remove Tag" delete-hint="Press delete to remove tag" secondary-placeholder="+Tag" required></md-chips>
+					<md-chips ng-model="document.tags" name="Tags" placeholder="Enter a tag" delete-button-label="Remove Tag" delete-hint="Press delete to remove tag" secondary-placeholder="+Tag" md-on-remove="removeTag($index)" required></md-chips>
 					<div class="pattern" ng-if="showErrors && !document.tags.length">Please enter at least one tag.</div>	
 					<div ng-messages="addDocumentForm.Tags.$error" ng-if="addDocumentForm.Tags.$touched">
 						<div ng-message="required">Tags for this file is required.</div>
 					</div>			
 				</md-input-container>
 				
+				<md-card flex ng-if="!document.file_removed">
+					<md-card-content layout="row" layout-align="space-between center">
+						<span ng-bind="document.file_name"></span><br/>
+						<md-button class="md-icon-button" aria-label="Remove Choice" ng-click="removeFile()">
+							<md-icon class="mdi mdi-close mdi-24px"></md-icon>
+							<md-tooltip>Remove</md-tooltip>
+						</md-button>
+					</md-card-content>
+				</md-card>
+
 				<div layout="column" ng-if="pdfUploader.queue.length">
 					<p class="secondary-text">Attachment</p>
 					<md-card ng-repeat="item in pdfUploader.queue" flex>
@@ -42,7 +52,7 @@
 						</md-card-content>
 					</md-card>
 				</div>
-				<input type="file" nv-file-select uploader="pdfUploader" ng-if="!pdfUploader.queue.length"/>
+				<input type="file" nv-file-select uploader="pdfUploader" ng-if="!pdfUploader.queue.length && document.file_removed"/>
 				<div class="pattern" ng-if="fileError">Only PDF files can be uploaded.</div>				
 			</div>
 		</md-dialog-content>
