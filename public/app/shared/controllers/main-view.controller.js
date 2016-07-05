@@ -23,6 +23,7 @@ sharedModule
 				        .position('bottom right')
 				        .hideDelay(3000)
 		    	);
+		    	Preloader.stop();
 		    });
 		}
 
