@@ -288,6 +288,10 @@ md-content.primary-bg {
   width: 100px;
   height: 100px; }
 
+.photo-bg {
+  background: url("/assets/img/2FS8R15QYN.jpg");
+  background-size: cover; }
+
 /* transition duration */
 .transition, .fade-transition, .main-view {
   transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2); }

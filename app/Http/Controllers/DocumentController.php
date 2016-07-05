@@ -24,7 +24,7 @@ class DocumentController extends Controller
                 DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
             )
             ->where('documents.file_name', 'like', '%'. $request->userInput .'%')
-            ->where('tags.name', 'like', '%'. $request->userInput .'%')
+            ->orWhere('tags.name', 'like', '%'. $request->userInput .'%')
             ->orderBy('documents.file_name')
             ->groupBy('documents.id')
             ->get();
