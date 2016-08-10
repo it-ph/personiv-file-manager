@@ -1,5 +1,5 @@
 sharedModule
-	.controller('mainViewController', ['$scope', '$mdSidenav', '$mdToast', '$mdDialog', 'User', function($scope, $mdSidenav, $mdToast, $mdDialog, User){
+	.controller('mainViewController', ['$scope', '$mdSidenav', '$mdToast', '$mdDialog', 'User', 'Preloader', function($scope, $mdSidenav, $mdToast, $mdDialog, User, Preloader){
 		$scope.toggleSidenav = function(menuId) {
 		    $mdSidenav(menuId).toggle();
 		};

@@ -41,7 +41,10 @@ Route::get('/home', 'HomeController@index');
 // Route::group(['middleware' => 'auth'], function(){
 	/* Resource */
 	Route::resource('category', 'CategoryController');
+	Route::resource('category-group', 'CategoryGroupController');
 	Route::resource('document', 'DocumentController');
+	Route::resource('group', 'GroupController');
+	Route::resource('group-user', 'GroupUserController');
 	Route::resource('tag', 'TagController');
 	Route::resource('user', 'UserController');
 
@@ -60,6 +63,14 @@ Route::get('/home', 'HomeController@index');
 
 	/* Others*/
 	Route::get('tag-document/{documentID}', 'TagController@document');
+	Route::get('user-others', 'UserController@others');
+	Route::get('user-reset-password', 'UserController@resetPassword');
+	Route::post('user-check-email', 'UserController@checkEmail');
+	Route::get('user-all', 'UserController@all');
+
+	/* Duplicates */
+	Route::post('group-check-duplicate', 'GroupController@checkDuplicate');
+
 // });
 
 

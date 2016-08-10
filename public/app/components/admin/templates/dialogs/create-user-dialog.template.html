@@ -1,0 +1,78 @@
+<md-dialog aria-label="Change Password"  flex flex-gt-sm="50" flex-gt-lg="40" ng-cloak>
+    <form name="userForm" novalidate>
+        <md-toolbar class="white-toolbar">
+            <div class="md-toolbar-tools">
+                <h2 class="primary-text">New User</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon class="mdi mdi-close mdi-24px grey" aria-label="Close dialog"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content layout="column" flex layout-padding>
+            <!-- Old -->
+            <div layout="row" flex>
+                <!-- First Name -->
+                <md-input-container flex>
+                    <label>First Name</label>
+                    <input type="text" name="firstName" required ng-model="user.first_name" ng-pattern="/^[a-zA-Z ]+$/">
+                    <div ng-messages="userForm.firstName.$error" ng-if="userForm.firstName.$touched">
+                        <div ng-message="required">First name is required.</div>
+                        <div ng-message="pattern">Characters and spaces only.</div>
+                    </div>
+                </md-input-container>
+                <!-- Last Name -->
+                <md-input-container flex>
+                    <label>Last Name</label>
+                    <input type="text" name="lastName" required ng-model="user.last_name" ng-pattern="/^[a-zA-Z ]+$/">
+                    <div ng-messages="userForm.lastName.$error" ng-if="userForm.lastName.$touched">
+                        <div ng-message="required">Last name is required.</div>
+                        <div ng-message="pattern">Characters and spaces only.</div>
+                    </div>
+                </md-input-container>
+            </div>
+            <div layout="row">
+                <!-- First Name -->
+                <md-input-container flex>
+                    <label>Email</label>
+                    <input type="email" name="Email" required ng-model="user.email" ng-blur="checkEmail()">
+                    <div ng-messages="userForm.Email.$error" ng-if="userForm.Email.$touched">
+                        <div ng-message="required">Email is required.</div>
+                    </div>
+                    <div class="pattern" ng-if="duplicate">Email is already in use.</div>
+                </md-input-container>
+                <md-radio-group ng-model="user.role" flex layout="row" layout-align="space-around center">
+                    <md-radio-button value="admin" class="md-primary">Admin</md-radio-button>
+                    <md-radio-button value="guest" class="md-primary">Guest</md-radio-button>
+                </md-radio-group>
+            </div>
+            <div layout="row" flex layout-padding layout-wrap flex>            
+                <!-- Password -->
+                <md-input-container flex="100" flex-gt-sm="50">
+                    <label>Password</label>
+                    <input type="password" name="Password" required ng-model="user.password" ng-minlength="8">
+                    <div class="pattern" ng-if="user.password != user.password_confirmation && userForm.confirmPassword.$touched">Passwords doesn't match.</div>
+                    <div ng-messages="userForm.Password.$error" ng-if="userForm.Password.$touched && password.new == password.confirm">
+                        <div ng-message="required">Password is required.</div>
+                        <div ng-message="minlength">Password must be at least 8 characters.</div>
+                    </div>
+                </md-input-container>
+                <!-- Confirm -->
+                <md-input-container flex="100" flex-gt-sm="50">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirmPassword" required ng-model="user.password_confirmation" ng-minlength="8">
+                    <div class="pattern" ng-if="user.password != user.password_confirmation && userForm.Password.$touched && userForm.confirmPassword.$touched">Passwords doesn't match.</div>
+                    <div ng-messages="userForm.confirmPassword.$error" ng-if="userForm.confirmPassword.$touched && user.password == user.password_confirmation">
+                        <div ng-message="required">Confirm password is required.</div>
+                        <div ng-message="minlength">Confirm password must be at least 8 characters.</div>
+                    </div>
+                </md-input-container>
+            </div>
+        </md-dialog-content>
+    </form>
+    <div layout="row" layout-align="end center">        
+        <md-button class="md-primary" aria-label="Submit" ng-click="submit()">
+            Submit
+        </md-button>
+    </div>
+</md-dialog>

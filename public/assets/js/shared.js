@@ -25,7 +25,7 @@ sharedModule
 			})
 	}]);
 sharedModule
-	.controller('mainViewController', ['$scope', '$mdSidenav', '$mdToast', '$mdDialog', 'User', function($scope, $mdSidenav, $mdToast, $mdDialog, User){
+	.controller('mainViewController', ['$scope', '$mdSidenav', '$mdToast', '$mdDialog', 'User', 'Preloader', function($scope, $mdSidenav, $mdToast, $mdDialog, User, Preloader){
 		$scope.toggleSidenav = function(menuId) {
 		    $mdSidenav(menuId).toggle();
 		};
@@ -85,6 +85,31 @@ sharedModule
 		};
 	}])
 sharedModule
+	.factory('CategoryGroup', ['$http', function($http){
+		var urlBase = '/category-group';
+		
+		return {
+			index: function(){
+				return $http.get(urlBase);
+			},
+			show: function(id){
+				return $http.get(urlBase + '/' + id);
+			},
+			store: function(data){
+				return $http.post(urlBase, data);
+			},
+			update: function(id, data){
+				return $http.put(urlBase + '/' + id, data);
+			},
+			delete: function(id){
+				return $http.delete(urlBase + '/' + id);
+			},
+			search: function(data){
+				return $http.post(urlBase + '-search', data);
+			},
+		};
+	}])
+sharedModule
 	.factory('Document', ['$http', function($http){
 		var urlBase = '/document';
 		
@@ -110,6 +135,59 @@ sharedModule
 			search: function(data){
 				return $http.post(urlBase + '-search', data);
 			},
+		};
+	}])
+sharedModule
+	.factory('GroupUser', ['$http', function($http){
+		var urlBase = '/group-user';
+		
+		return {
+			index: function(){
+				return $http.get(urlBase);
+			},
+			show: function(id){
+				return $http.get(urlBase + '/' + id);
+			},
+			store: function(data){
+				return $http.post(urlBase, data);
+			},
+			update: function(id, data){
+				return $http.put(urlBase + '/' + id, data);
+			},
+			delete: function(id){
+				return $http.delete(urlBase + '/' + id);
+			},
+			search: function(data){
+				return $http.post(urlBase + '-search', data);
+			},
+		};
+	}])
+sharedModule
+	.factory('Group', ['$http', function($http){
+		var urlBase = '/group';
+		
+		return {
+			index: function(){
+				return $http.get(urlBase);
+			},
+			show: function(id){
+				return $http.get(urlBase + '/' + id);
+			},
+			store: function(data){
+				return $http.post(urlBase, data);
+			},
+			update: function(id, data){
+				return $http.put(urlBase + '/' + id, data);
+			},
+			delete: function(id){
+				return $http.delete(urlBase + '/' + id);
+			},
+			search: function(data){
+				return $http.post(urlBase + '-search', data);
+			},
+			checkDuplicate: function(data){
+				return $http.post(urlBase + '-check-duplicate', data);
+			}
 		};
 	}])
 sharedModule
@@ -145,17 +223,37 @@ sharedModule
 			index: function(){
 				return $http.get(urlBase);
 			},
+			store: function(data){
+				return $http.post(urlBase, data);
+			},
 			checkPassword: function(data){
-				return $http.post(urlBase + '-check-password', data)
+				return $http.post(urlBase + '-check-password', data);
 			},
 			changePassword: function(data){
-				return $http.post(urlBase + '-change-password', data)
+				return $http.post(urlBase + '-change-password', data);
+			},
+			others: function(){
+				return $http.get(urlBase + '-others');
+			},
+			resetPassword: function(id){
+				return $http.get(urlBase + '-reset-password/' + id);
+			},
+			delete: function(id){
+				return $http.delete(urlBase + '/' + id);
+			},
+			checkEmail: function(data){
+				return $http.post(urlBase + '-check-email', data);
+			},
+			all: function(){
+				return $http.get(urlBase + '-all');
 			},
 		};
 	}])
 sharedModule
-	.service('Preloader', ['$mdDialog', function($mdDialog){
+	.service('Preloader', ['$mdDialog', '$mdToast', function($mdDialog, $mdToast){
 		var dataHolder = null;
+		var user = null;
+
 		return {
 			/* Starts the preloader */
 			loading: function(){
@@ -172,7 +270,7 @@ sharedModule
 			},
 			/* Stops the preloader */
 			stop: function(data){
-				$mdDialog.hide(data);
+				return $mdDialog.hide(data);
 			},
 			/* Shows error message if AJAX failed */
 			error: function(){
@@ -186,6 +284,14 @@ sharedModule
 				        .ok('Got it!')
 				);
 			},
+			errorMessage: function(data){
+				return $mdDialog.show({
+				    controller: 'errorMessageController',
+				    templateUrl: '/app/shared/templates/dialogs/error-message.template.html',
+				    parent: angular.element(document.body),
+				    clickOutsideToClose:true,
+				});
+			},
 			/* Send temporary data for retrival */
 			set: function(data){
 				dataHolder = data;
@@ -193,6 +299,30 @@ sharedModule
 			/* Retrieves data */
 			get: function(){
 				return dataHolder;
+			},
+			/* Set User */
+			setUser: function(data){
+				user = data;
+			},
+			/* Get User */
+			getUser: function(data){
+				return user;
+			},
+			toastChangesSaved: function(){
+				return $mdToast.show(
+			    	$mdToast.simple()
+				        .textContent('Changes saved.')
+				        .position('bottom right')
+				        .hideDelay(3000)
+			    );
+			},
+			deleted: function(){
+				return $mdToast.show(
+			    	$mdToast.simple()
+				        .textContent('Deleted')
+				        .position('bottom right')
+				        .hideDelay(3000)
+			    );
 			},
 		};
 	}]);

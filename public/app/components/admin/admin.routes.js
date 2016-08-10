@@ -36,4 +36,19 @@ adminModule
 					},
 				},
 			})
+			.state('main.settings', {
+				url:'settings',
+				views: {
+					'content-container': {
+						templateUrl: '/app/shared/views/content-container.view.html',
+						controller: 'settingsContentContainerController',
+					},
+					'content@main.settings': {
+						templateUrl: '/app/components/admin/templates/content/settings-content.template.html',
+					},
+					'toolbar@main.settings': {
+						templateUrl:'/app/shared/templates/toolbar.template.html',
+					},
+				},
+			})
 	}]);

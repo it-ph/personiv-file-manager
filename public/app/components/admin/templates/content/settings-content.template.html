@@ -1,0 +1,89 @@
+<div layout="row" layout-align="center center" ng-if="current_user">
+	<div layout="column" layout-margin>
+		<!-- Groups -->
+		<md-content class="container md-whiteframe-2dp">
+			<md-subheader class="md-no-sticky md-primary">
+				<span>Groups</span>
+			</md-subheader>
+			<md-list>
+				<md-list-item class="fade-transition md-2-line" flex ng-repeat="group in groups | filter:toolbar.userInput | orderBy:'name'">
+					<div class="md-list-item-text">
+						<h3>{{group.name}}</h3>
+						<h4>Users: {{group.users.length}}</h4>
+						<p>Category: {{group.categories.length}}</p>
+					</div>
+					<md-menu class="fade-transition" ng-if="current_user.role != 'guest'">
+				    	<md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+					        <md-icon class="mdi mdi-24px mdi-dots-vertical grey"></md-icon>
+					        <md-tooltip>Menu</md-tooltip>
+					    </md-button>
+					    <md-menu-content width="2">
+							<md-menu-item>
+					          	<!-- Edit -->
+								<md-button ng-click="editGroup(group.id)">
+									<md-icon class="mdi mdi-24px mdi-pencil grey"></md-icon>
+									Edit
+								</md-button>
+					        </md-menu-item>
+					        <md-menu-item ng-if="!group.users.length && !group.categories.length">
+								<md-button ng-click="deleteGroup(group.id)">
+									<md-icon class="mdi mdi-24px mdi-delete grey"></md-icon>
+									Delete
+								</md-button>
+					        </md-menu-item>
+					    </md-menu-content>
+				    </md-menu>
+				</md-list-item>
+			</md-list>
+			<p ng-if="!groups.length">No groups to display.</p>
+			<div layout="row" layout-align="end center">
+				<md-button class="md-primary" ng-click="createGroup()"> 
+					Create
+				</md-button>
+			</div>
+		</md-content>
+
+		<!-- Users -->
+		<md-content class="container md-whiteframe-2dp">
+			<md-subheader class="md-no-sticky md-primary">
+				<span>Users</span>
+			</md-subheader>
+			<md-list>
+				<md-list-item class="fade-transition md-2-line" flex ng-repeat="user in users | filter:toolbar.userInput | orderBy:'first_name'">
+					<div class="md-list-item-text">
+						<h3>{{user.first_name}}</h3>
+						<h4>{{user.email}}</h4>
+						<!-- <p>{{user.role}}</p> -->
+					</div>
+					<md-menu class="fade-transition">
+				    	<md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+					        <md-icon class="mdi mdi-24px mdi-dots-vertical grey"></md-icon>
+					        <md-tooltip>Menu</md-tooltip>
+					    </md-button>
+					    <md-menu-content width="2">
+					        <md-menu-item>
+					          	<!-- Reset Password -->
+								<md-button ng-click="resetPassword(user.id)">
+									<md-icon class="mdi mdi-24px mdi-key-minus grey"></md-icon>
+									Reset Password
+								</md-button>
+					        </md-menu-item>
+					        <md-menu-item ng-if="current_user.role == 'super-admin'">
+								<md-button ng-click="deleteAccount(user.id)">
+									<md-icon class="mdi mdi-24px mdi-account-remove grey"></md-icon>
+									Delete Account
+								</md-button>
+					        </md-menu-item>
+					    </md-menu-content>
+				    </md-menu>
+				</md-list-item>
+			</md-list>
+			<p ng-if="!users.length">No users to display.</p>
+			<div layout="row" layout-align="end center">
+				<md-button class="md-primary" ng-click="createUser()"> 
+					Create
+				</md-button>
+			</div>
+		</md-content>
+	</div>
+</div>

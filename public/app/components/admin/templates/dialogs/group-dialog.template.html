@@ -1,0 +1,39 @@
+<md-dialog layout="column" flex flex-gt-md="50"  aria-label="New Group" ng-cloak>
+	<form name="createGroupForm" novalidate>
+		<md-toolbar class="white-toolbar">
+			<div class="md-toolbar-tools">
+				<h2 class="primary-text">New Group</h2>
+				<span flex></span>
+				<md-button class="md-icon-button" ng-click="cancel()">
+					<md-icon class="mdi mdi-close mdi-24px grey" aria-label="cancel"></md-icon>
+				</md-button>
+			</div>
+		</md-toolbar>
+		<md-dialog-content layout="column" flex layout-padding layout-wrap>
+			<div layout="column">
+				<!-- Name -->
+				<md-input-container>
+					<label>Name</label>
+					<input type="text" name="GroupName" required ng-model="group.name" ng-blur="checkDuplicate()">
+					<div ng-messages="createGroupForm.GroupName.$error" ng-if="createGroupForm.GroupName.$touched">
+						<div ng-message="required">Name is required.</div>
+					</div>
+					<div class="pattern" ng-if="duplicate">Group already exists</div>
+				</md-input-container>
+				<!-- Users -->
+				<md-subheader class="md-no-sticky">Users</md-subheader>
+				<md-input-container layout="row" layout-wrap flex layout-align="start center">
+					<md-checkbox ng-repeat="user in users" ng-model="group.users[$index]" class="md-primary" flex-xs="100" flex-gt-xs="100" flex-gt-md="30" ng-true-value="{{ user }}" ng-false-value="null">
+						{{ user.first_name }} {{ user.last_name }}
+					</md-checkbox>
+					<div class="pattern" ng-if="(!group.users.length && show)">Check at least one user.</div>
+				</md-input-container>
+			</div>
+		</md-dialog-content>
+	</form>
+	<div layout="row" layout-align="end center">		
+		<md-button class="md-button md-primary" aria-label="Submit" ng-click="submit()">
+			Submit
+		</md-button>
+	</div>
+</md-dialog>

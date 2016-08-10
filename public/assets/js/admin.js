@@ -39,6 +39,21 @@ adminModule
 					},
 				},
 			})
+			.state('main.settings', {
+				url:'settings',
+				views: {
+					'content-container': {
+						templateUrl: '/app/shared/views/content-container.view.html',
+						controller: 'settingsContentContainerController',
+					},
+					'content@main.settings': {
+						templateUrl: '/app/components/admin/templates/content/settings-content.template.html',
+					},
+					'toolbar@main.settings': {
+						templateUrl:'/app/shared/templates/toolbar.template.html',
+					},
+				},
+			})
 	}]);
 adminModule
 	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader){
@@ -327,6 +342,162 @@ adminModule
 		}
 	}]);
 adminModule
+	.controller('settingsContentContainerController', ['$scope', '$state', '$mdDialog', 'Preloader', 'Group', 'User', function($scope, $state, $mdDialog, Preloader, Group, User){
+		/**
+		 * Object for toolbar
+		 *
+		*/
+		$scope.toolbar = {};
+		$scope.toolbar.childState = 'Settings';
+
+		$scope.refresh = function(){
+			Preloader.loading();
+			$scope.init(true);
+		}
+
+		$scope.createGroup = function(){
+			$mdDialog.show({
+		    	controller: 'createGroupDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/group-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function(){
+	        	$scope.refresh();
+	        }, function() {
+	        	return;
+	        });
+		}
+
+		$scope.editGroup = function(id){
+			Preloader.set(id);
+			$mdDialog.show({
+		    	controller: 'editGroupDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/group-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function(){
+	        	$scope.refresh();
+	        }, function() {
+	        	return;
+	        });
+		}
+
+		$scope.deleteGroup = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete Group')
+		        .textContent('This group will be removed permanently.')
+		        .ariaLabel('Delete Group')
+		        .ok('Delete')
+		        .cancel('Cancel');
+
+		    $mdDialog.show(confirm)
+		    	.then(function() {
+			    	Group.delete(id)
+			    		.success(function(){
+			    			$scope.refresh();
+			    			Preloader.deleted();
+			    		})
+			    		.error(function(){
+			    			Preloader.error();
+			    		});
+			    }, function() {
+			    	return;
+			    });
+		}	
+
+		$scope.createUser = function(){
+			$mdDialog.show({
+		    	controller: 'createUserDialogController',
+		      	templateUrl: '/app/components/admin/templates/dialogs/create-user-dialog.template.html',
+		      	parent: angular.element(document.body),
+		    })
+	        .then(function(){
+	        	$scope.refresh();
+	        }, function() {
+	        	return;
+	        });
+		}
+
+		$scope.resetPassword = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Reset Password')
+		        .textContent('Reset the password for this account?')
+		        .ariaLabel('Reset Password')
+		        .ok('Reset')
+		        .cancel('Cancel');
+
+		    $mdDialog.show(confirm)
+		    	.then(function() {
+			    	User.resetPassword(id)
+			    		.success(function(){
+			    			Preloader.toastChangesSaved();
+			    		})
+			    		.error(function(){
+			    			Preloader.error();
+			    		});
+			    }, function() {
+			    	return;
+			    });
+		}
+
+		$scope.deleteAccount = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete Account')
+		        .textContent('This account will be removed permanently.')
+		        .ariaLabel('Delete Account')
+		        .ok('Delete')
+		        .cancel('Cancel');
+
+		    $mdDialog.show(confirm)
+		    	.then(function() {
+			    	User.delete(id)
+			    		.success(function(){
+			    			$scope.refresh();
+			    			Preloader.deleted();
+			    		})
+			    		.error(function(){
+			    			Preloader.error();
+			    		});
+			    }, function() {
+			    	return;
+			    });
+		}
+
+		$scope.init = function(refresh){
+			User.index()
+				.success(function(data){
+					if(!data){
+						$state.go('main');
+					}
+
+					$scope.current_user = data;
+				});
+
+			Group.index()
+				.then(function(data){
+					$scope.groups = data.data;
+				})
+				.then(function(){
+					User.others()
+						.success(function(data){
+							$scope.users = data;
+
+							if(refresh){
+								Preloader.stop();
+								Preloader.stop();
+							}
+						})
+						.error(function(){
+							Preloader.error();
+						});
+				}, function(){
+					Preloader.error();
+				});
+		}
+
+		$scope.init();
+	}]);
+adminModule
 	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
 		$scope.category = {};
 		var busy = false;
@@ -478,6 +649,128 @@ adminModule
 					.error(function(){
 						Preloader.error();
 					});
+			}
+		}
+	}]);
+adminModule
+	.controller('createGroupDialogController', ['$scope', '$mdDialog', 'Group', 'GroupUser', 'Preloader', 'User', function($scope, $mdDialog, Group, GroupUser, Preloader, User){
+		$scope.group = {};
+		$scope.group.users = [];
+		var busy = false;
+
+		User.all()
+			.success(function(data){
+				$scope.users = data;
+			});
+
+		$scope.checkDuplicate = function(){
+			$scope.duplicate = false;
+			Group.checkDuplicate($scope.group)
+				.success(function(data){
+					$scope.duplicate = data;
+				});
+		}
+
+		$scope.cancel = function(){
+			$mdDialog.cancel();
+		}
+
+		$scope.submit = function(){
+			if($scope.createGroupForm.$invalid){
+				angular.forEach($scope.createGroupForm.$error, function(field){
+					angular.forEach(field, function(errorField){
+						errorField.$setTouched();
+					});
+				});
+			}
+			else{
+				/* Starts Preloader */
+				// Preloader.loading();
+				/**
+				 * Stores Single Record
+				*/
+				$scope.show = true;
+				if(!busy && !$scope.duplicate && $scope.group.users.length){
+					busy = true;
+					Group.store($scope.group)
+						.success(function(data){
+							busy = false;
+							if(!typeof(data) === 'string'){
+								$scope.duplicate = data;
+							}
+							else if(typeof(data) === 'string'){
+								angular.forEach($scope.group.users, function(item){
+									item.group_id = data;
+								});
+
+								GroupUser.store($scope.group.users)
+									.success(function(){
+										Preloader.stop();
+									})
+									.error(function(){
+										Preloader.error();
+									})
+							}
+						})
+						.error(function(){
+							Preloader.error()
+						});
+				}
+			}
+		}
+	}]);
+adminModule
+	.controller('createUserDialogController', ['$scope', '$mdDialog', 'User', 'Preloader', function($scope, $mdDialog, User, Preloader){
+		$scope.user = {};
+		$scope.user.role = 'admin';
+		var busy = false;
+
+		$scope.cancel = function(){
+			$mdDialog.cancel();
+		}
+
+		$scope.checkEmail = function(){
+			$scope.duplicate = false;
+			User.checkEmail($scope.user)
+				.success(function(data){
+					$scope.duplicate = data;
+				})
+				.error(function(){
+					Preloader.error();
+				})
+		}
+
+		$scope.submit = function(){
+			$scope.showErrors = true;
+			if($scope.userForm.$invalid){
+				angular.forEach($scope.userForm.$error, function(field){
+					angular.forEach(field, function(errorField){
+						errorField.$setTouched();
+					});
+				});
+			}
+			else if($scope.user.password != $scope.user.password_confirmation || $scope.duplicate)
+			{
+				return;
+			}
+			else {
+				if(!busy && !$scope.duplicate)
+				{
+					// Preloader.saving();
+					busy = true;
+
+					User.store($scope.user)
+						.success(function(data){
+							if(!data){
+								Preloader.stop();
+								busy = false;
+							}
+						})
+						.error(function(){
+							Preloader.error();
+							busy = false;
+						});
+				}
 			}
 		}
 	}]);
@@ -638,5 +931,58 @@ adminModule
 				}
 			}
 		};
+	}]);
+adminModule
+	.controller('editGroupDialogController', ['$scope', '$mdDialog', 'Group', 'Preloader', function($scope, $mdDialog, Group, Preloader){
+		var groupID = Preloader.get();
+		var busy = false;
+
+		$scope.checkDuplicate = function(){
+			$scope.duplicate = false;
+			Group.checkDuplicate($scope.group)
+				.success(function(data){
+					$scope.duplicate = data;
+				});
+		}
+
+		$scope.cancel = function(){
+			$mdDialog.cancel();
+		}
+
+		Group.show(groupID)
+			.success(function(data){
+				$scope.group = data;
+			})
+
+		$scope.submit = function(){
+			if($scope.createGroupForm.$invalid){
+				angular.forEach($scope.createGroupForm.$error, function(field){
+					angular.forEach(field, function(errorField){
+						errorField.$setTouched();
+					});
+				});
+			}
+			else{
+				/* Starts Preloader */
+				// Preloader.loading();
+				/**
+				 * Stores Single Record
+				*/
+				if(!busy && !$scope.duplicate){
+					busy = true;
+					Group.update(groupID, $scope.group)
+						.success(function(data){
+							busy = false;
+							if(!data){
+								// Stops Preloader 
+								Preloader.stop();
+							}
+						})
+						.error(function(){
+							Preloader.error()
+						});
+				}
+			}
+		}
 	}]);
 //# sourceMappingURL=admin.js.map
