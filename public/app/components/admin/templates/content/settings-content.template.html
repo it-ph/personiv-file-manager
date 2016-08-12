@@ -51,9 +51,9 @@
 			<md-list>
 				<md-list-item class="fade-transition md-2-line" flex ng-repeat="user in users | filter:toolbar.userInput | orderBy:'first_name'">
 					<div class="md-list-item-text">
-						<h3>{{user.first_name}}</h3>
+						<h3>{{user.first_name}} {{user.last_name}}</h3>
 						<h4>{{user.email}}</h4>
-						<!-- <p>{{user.role}}</p> -->
+						<p ng-if="user.groups.length">Group(s): <span ng-repeat="group in user.groups">{{group.name}} | </span></p>
 					</div>
 					<md-menu class="fade-transition">
 				    	<md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">

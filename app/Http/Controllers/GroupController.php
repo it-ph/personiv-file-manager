@@ -60,6 +60,8 @@ class GroupController extends Controller
         $group->name = $request->name;
 
         $group->save();
+
+        return $group->id;
     }
 
     /**
@@ -109,6 +111,8 @@ class GroupController extends Controller
         $group->name = $request->name;
 
         $group->save();
+
+        return $group->id;
     }
 
     /**

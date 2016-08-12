@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Document;
 use App\Category;
 use App\Tag;
+use App\User;
 use DB;
+use Auth;
 use App\Http\Requests;
 use File;
 use Storage;
@@ -39,14 +41,39 @@ class DocumentController extends Controller
                 }
             }
 
+
         return $document;
     }
-    public function view($id)
+    public function view($id, $categoryID)
     {
-        $document = Document::where('id', $id)->first();
+        $this->document = Document::with(['category' => function($query){ $query->with('groups'); }])->where('id', $id)->first();
+
+        if(count($this->document->category->groups)){
+            if(!Auth::check()){
+                return 'Unauthorized access';
+            }
+
+            $user = User::with(['groups' => function($query){ $query->with(['categories' => function($query){ $query->where('category_id', $this->document->category_id); }]); }])->where('id', Auth::user()->id)->first();
+
+            $access = 0;
+
+            if(count($user->groups)){
+                foreach ($user->groups as $group_key => $group) {
+                    if(count($group->categories)){
+                        $access++;
+                    }
+                }
+
+                if(!$access)
+                {
+                    return 'Unauthorized access';
+                }
+            }
+        }
+
 
          // use question image_path to fetch the file
-        $path = storage_path() .'/app/'. $document->path;
+        $path = storage_path() .'/app/'. $this->document->path;
 
         $file = File::get($path);
         $type = File::mimeType($path);

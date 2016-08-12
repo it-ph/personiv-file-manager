@@ -21,5 +21,8 @@ sharedModule
 			search: function(data){
 				return $http.post(urlBase + '-search', data);
 			},
+			relation: function(groupID, userID){
+				return $http.get(urlBase + '-relation/' + groupID + '/user/' + userID);
+			},
 		};
 	}])

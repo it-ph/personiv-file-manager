@@ -31,7 +31,7 @@
 		</div>
 	</form>
 	<span flex-gt-sm hide-sm></span>
-	<md-button class="md-icon-button" ng-if="user && user.role != 'guest'" ui-sref="main.settings">
+	<md-button class="md-icon-button" ng-if="user && user.role == 'super-admin'" ui-sref="main.settings">
 		<md-icon class="mdi mdi-settings mdi-24px grey"></md-icon>
 		<md-tooltip>Settings</md-tooltip>
 	</md-button>

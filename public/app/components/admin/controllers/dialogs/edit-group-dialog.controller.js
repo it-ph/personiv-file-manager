@@ -1,5 +1,5 @@
 adminModule
-	.controller('editGroupDialogController', ['$scope', '$mdDialog', 'Group', 'Preloader', function($scope, $mdDialog, Group, Preloader){
+	.controller('editGroupDialogController', ['$scope', '$mdDialog', 'Group', 'Preloader', 'User', 'GroupUser', function($scope, $mdDialog, Group, Preloader, User, GroupUser){
 		var groupID = Preloader.get();
 		var busy = false;
 
@@ -15,9 +15,29 @@ adminModule
 			$mdDialog.cancel();
 		}
 
+
 		Group.show(groupID)
 			.success(function(data){
 				$scope.group = data;
+				$scope.group.users = [];
+				var count = 0;
+				
+				User.all()
+					.success(function(data){
+						$scope.users = data;
+
+						angular.forEach(data, function(user, idx){
+							$scope.group.users.push(null);
+							GroupUser.relation($scope.group.id, user.id)
+								.success(function(related){
+									if(related){
+										$scope.group.users.splice(idx, 1, user);
+									}
+								})
+						});
+					});
+
+
 			})
 
 		$scope.submit = function(){
@@ -34,14 +54,39 @@ adminModule
 				/**
 				 * Stores Single Record
 				*/
-				if(!busy && !$scope.duplicate){
+				$scope.count = 0;
+				angular.forEach($scope.group.users, function(item){
+					if(item){
+						$scope.count++;
+					}
+				});
+
+				if(!$scope.count){
+					$scope.show = true;
+				}
+
+				if(!busy && !$scope.duplicate && $scope.count){
 					busy = true;
 					Group.update(groupID, $scope.group)
 						.success(function(data){
 							busy = false;
-							if(!data){
-								// Stops Preloader 
-								Preloader.stop();
+							if(!typeof(data) === 'string'){
+								$scope.duplicate = data;
+							}
+							else if(typeof(data) === 'string'){
+								angular.forEach($scope.group.users, function(item){
+									if(item){
+										item.group_id = data;
+									}
+								});
+
+								GroupUser.update(groupID, $scope.group.users)
+									.success(function(){
+										Preloader.stop();
+									})
+									.error(function(){
+										Preloader.error();
+									})
 							}
 						})
 						.error(function(){

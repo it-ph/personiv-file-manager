@@ -26,7 +26,7 @@
 					<md-checkbox ng-repeat="user in users" ng-model="group.users[$index]" class="md-primary" flex-xs="100" flex-gt-xs="100" flex-gt-md="30" ng-true-value="{{ user }}" ng-false-value="null">
 						{{ user.first_name }} {{ user.last_name }}
 					</md-checkbox>
-					<div class="pattern" ng-if="(!group.users.length && show)">Check at least one user.</div>
+					<div class="pattern" ng-if="(!group.users.length && show) || (!$scope.count && show)">Check at least one user.</div>
 				</md-input-container>
 			</div>
 		</md-dialog-content>

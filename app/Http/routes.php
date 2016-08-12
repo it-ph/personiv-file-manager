@@ -56,7 +56,7 @@ Route::get('/home', 'HomeController@index');
 
 	/* File Handling */
 	Route::post('/document-upload', 'DocumentController@upload');
-	Route::get('/document-view/{id}', 'DocumentController@view');
+	Route::get('/document-view/{id}/category/{categoryID}', 'DocumentController@view');
 
 	/* Pagination */
 	Route::get('document-paginate/{categoryID}', 'DocumentController@paginate');
@@ -64,9 +64,13 @@ Route::get('/home', 'HomeController@index');
 	/* Others*/
 	Route::get('tag-document/{documentID}', 'TagController@document');
 	Route::get('user-others', 'UserController@others');
-	Route::get('user-reset-password', 'UserController@resetPassword');
+	Route::get('user-reset-password/{userID}', 'UserController@resetPassword');
 	Route::post('user-check-email', 'UserController@checkEmail');
 	Route::get('user-all', 'UserController@all');
+	Route::get('group-user-relation/{groupID}/user/{userID}', 'GroupUserController@relation');
+	Route::get('category-group-relation/{categoryID}/group/{groupID}', 'CategoryGroupController@relation');
+	Route::post('category-user-groups', 'CategoryController@userGroups');
+	Route::post('user-check-file-access', 'UserController@checkFileAccess');
 
 	/* Duplicates */
 	Route::post('group-check-duplicate', 'GroupController@checkDuplicate');

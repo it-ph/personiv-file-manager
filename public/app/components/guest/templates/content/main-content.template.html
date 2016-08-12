@@ -1,6 +1,6 @@
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap ng-if="show.categories">
 	<!-- All Records -->
-	<md-card ng-repeat="category in categories | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-if="show.categories">
+	<md-card ng-repeat="category in categories | filter:toolbar.userInput | orderBy:'name'" class="fade-transition" flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20" ng-if="show.categories && !category.groups.length">
 		<md-card-content ng-click="viewCategory(category.id)">
 			<div layout="row" layout-align="center center" layout-padding class="card-category-image">		
 				<div class="circle" layout="row" layout-align="center center">
@@ -16,8 +16,8 @@
 			</h3> -->
 		</md-card-content>
 		<md-card-actions layout="row" layout-align="end center">
-			<md-button class="md-icon-button" ng-if="user">
-				<md-icon class="mdi mdi-information mdi-24px" ng-click="details(category.id)"></md-icon>
+			<md-button class="md-icon-button">
+				<md-icon class="mdi mdi-information mdi-24px" ng-click="viewDescription(category.description)"></md-icon>
 				<md-tooltip>Details</md-tooltip>
 			</md-button>
 			<md-button class="md-icon-button" ng-if="user">
@@ -36,8 +36,8 @@
 <div layout="row" layout-margin flex flex-gt-md="70" layout-align="center start" layout-wrap class="fade-transition" ng-if="results && !show.categories">
 	<!-- Search Records -->
 	<md-card ng-repeat="item in results | filter:toolbar.userInput | orderBy:'name'" class="fade-transition"  flex-xs="100" flex-sm="100" flex-md="40" flex-gt-md="20">
-		<md-card-content>
-			<div layout="row" layout-align="center center" layout-padding class="card-file-image" ng-click="openFile(item.document_id)">		
+		<md-card-content ng-click="openFile(item.document_id, item.category_id)">
+			<div layout="row" layout-align="center center" layout-padding class="card-file-image">		
 				<div class="circle" layout="row" layout-align="center center"></div>
 			</div>
 			<h2 class="md-headline">{{item.file_name}}</h2>
@@ -56,7 +56,7 @@
 				<md-icon class="mdi mdi-open-in-new mdi-24px"></md-icon>
 				<md-tooltip>Open</md-tooltip>
 			</md-button> -->
-			<md-button class="md-icon-button" ng-if="user">
+			<md-button class="md-icon-button">
 				<md-icon class="mdi mdi-pencil mdi-24px" ng-click="edit(item.document_id)"></md-icon>
 				<md-tooltip>Edit</md-tooltip>
 			</md-button>

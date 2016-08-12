@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Category;
+use App\Group;
 use DB;
 use App\Http\Requests;
 
@@ -22,6 +23,15 @@ class CategoryController extends Controller
     //         ->where('description', 'like', '%'. $request->userInput. '%')
     //         ->get();
     // }
+    public function userGroups(Request $request)
+    {
+        $this->groups = $request->all();
+
+        $categories = Group::with('categories')->whereIn('id', $request->all())->get();
+
+        return $categories;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -29,13 +39,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return DB::table('categories')
-            ->select(
-                '*',
-                DB::raw('UPPER(LEFT(name, 1)) as first_letter'),
-                DB::raw('DATE_FORMAT(created_at, "%b. %d, %Y") as created_at_formatted')
-            )
-            ->get();
+        return Category::with('groups')->get();
     }
 
     /**
@@ -67,6 +71,8 @@ class CategoryController extends Controller
         $category->description = $request->description;
 
         $category->save();
+
+        return $category->id;
     }
 
     /**
@@ -77,7 +83,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        return Category::where('id', $id)->first();
+        return Category::with('groups')->where('id', $id)->first();
     }
 
     /**
@@ -111,6 +117,8 @@ class CategoryController extends Controller
         $category->description = $request->description;
 
         $category->save();
+
+        return $category->id;
     }
 
     /**

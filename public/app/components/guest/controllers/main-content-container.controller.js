@@ -35,6 +35,18 @@ guestModule
 					Preloader.error();
 				});
 		}
+
+		$scope.viewDescription = function(data){
+			$mdDialog.show(
+			    $mdDialog.alert()
+			    	.parent(angular.element(document.body))
+			        .clickOutsideToClose(true)
+			        .title('Description')
+			        .textContent(data)
+			        .ariaLabel('Description')
+			        .ok('Okay')
+			);
+		}
 		
 		/**
 		 * Object for toolbar
@@ -79,8 +91,8 @@ guestModule
 			$state.go('main.category', {'categoryID': id});
 		};
 
-		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+		$scope.openFile = function(id, categoryID){
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
 		}
 

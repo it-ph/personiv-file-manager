@@ -1,6 +1,12 @@
 adminModule
-	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
+	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', 'User', 'CategoryGroup', function($scope, $mdDialog, Category, Preloader, User, CategoryGroup){
 		$scope.category = {};
+		$scope.category.groups = [];
+		User.index()
+			.success(function(data){
+				$scope.groups = data.groups;
+			});
+
 		var busy = false;
 
 		$scope.cancel = function(){
@@ -17,21 +23,40 @@ adminModule
 			}
 			else{
 				/* Starts Preloader */
-				Preloader.loading();
+				// Preloader.loading();
 				/**
 				 * Stores Single Record
 				*/
 				if(!busy){
-					busy = true;
-					Category.store($scope.category)
-						.success(function(){
-							// Stops Preloader 
-							Preloader.stop();
-							busy = false;
-						})
-						.error(function(){
-							Preloader.error()
-						});
+					if(($scope.private && $scope.category.groups.length) || (!$scope.private && !$scope.category.groups.length)){
+						busy = true;
+						Category.store($scope.category)
+							.success(function(data){
+								if(data){
+									angular.forEach($scope.category.groups, function(item){
+										item.category_id = data;
+									});
+
+									CategoryGroup.store($scope.category.groups)
+										.success(function(){
+											// Stops Preloader 
+											Preloader.stop();
+											busy = false;		
+										})
+								}
+								else{
+									// Stops Preloader 
+									Preloader.stop();
+									busy = false;
+								}
+							})
+							.error(function(){
+								Preloader.error()
+							});
+					}
+					else{
+						$scope.show = true;
+					}
 				}
 			}
 		}

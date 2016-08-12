@@ -11,6 +11,21 @@ use App\User;
 
 class UserController extends Controller
 {
+    public function checkFileAccess(Request $request)
+    {
+        $this->groups = $request->all();
+
+        $user = User::with(['groups' => function($query){ $query->whereIn('group_id', $this->groups); }])->where('id', Auth::user()->id)->first();
+
+        // return $user;
+
+        if(count($user->groups)){
+            return response()->json(true);
+        }
+
+        return response()->json(false);
+    }
+
     public function all()
     {
         return User::all();
@@ -41,7 +56,7 @@ class UserController extends Controller
 
     public function others()
     {
-        return User::whereNotIn('role', ['super-admin'])->whereNotIn('id', [Auth::user()->id])->get();
+        return User::with('groups')->whereNotIn('role', ['super-admin'])->whereNotIn('id', [Auth::user()->id])->get();
     }
 
     public function changePassword(Request $request)
@@ -66,7 +81,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Auth::user();
+        return User::with('groups')->where('id', Auth::user()->id)->first();
     }
 
     /**

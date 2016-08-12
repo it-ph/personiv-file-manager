@@ -13,7 +13,7 @@ adminModule
 						controller: 'mainContentContainerController',
 					},
 					'content@main': {
-						templateUrl: '/app/shared/templates/main-content.template.html',
+						templateUrl: '/app/components/admin/templates/content/main-content.template.html',
 					},
 					'toolbar@main': {
 						templateUrl:'/app/shared/templates/toolbar.template.html',

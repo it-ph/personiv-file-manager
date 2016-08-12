@@ -21,5 +21,8 @@ sharedModule
 			search: function(data){
 				return $http.post(urlBase + '-search', data);
 			},
+			userGroups: function(data){
+				return $http.post(urlBase + '-user-groups', data);
+			},
 		};
 	}])

@@ -2,7 +2,7 @@
 	<form name="addCategoryForm" novalidate>
 		<md-toolbar class="white-toolbar">
 			<div class="md-toolbar-tools">
-				<h2 class="primary-text">New Category</h2>
+				<h2 class="primary-text">Category</h2>
 				<span flex></span>
 				<md-button class="md-icon-button" ng-click="cancel()">
 					<md-icon class="mdi mdi-close mdi-24px grey" aria-label="cancel"></md-icon>
@@ -29,6 +29,20 @@
 						<div ng-message="required">Description about the category is required.</div>
 					</div>
 				</md-input-container>
+
+				<md-checkbox class="md-primary" ng-model="private">
+					Private
+				</md-checkbox>
+	
+				<div ng-if="private">
+					<md-subheader class="md-no-sticky">Group(s)</md-subheader>
+					<md-input-container layout="row" layout-wrap flex layout-align="start center">
+						<md-checkbox ng-repeat="group in groups" ng-model="category.groups[$index]" class="md-primary" flex-xs="100" flex-gt-xs="100" flex-gt-md="30" ng-true-value="{{ group }}" ng-false-value="null">
+							{{ group.name }}
+						</md-checkbox>
+						<div class="pattern" ng-if="(!category.groups.length && show) || (!$scope.count && show)">Check at least one group.</div>
+					</md-input-container>
+				</div>
 			</div>
 		</md-dialog-content>
 	</form>

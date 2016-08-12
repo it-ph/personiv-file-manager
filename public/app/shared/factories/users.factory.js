@@ -30,5 +30,8 @@ sharedModule
 			all: function(){
 				return $http.get(urlBase + '-all');
 			},
+			checkFileAccess(data){
+				return $http.post(urlBase + '-check-file-access', data);
+			},
 		};
 	}])

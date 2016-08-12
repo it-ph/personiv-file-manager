@@ -16,7 +16,7 @@ guestModule
 						controller: 'mainContentContainerController',
 					},
 					'content@main': {
-						templateUrl: '/app/shared/templates/main-content.template.html',
+						templateUrl: '/app/components/guest/templates/content/main-content.template.html',
 					},
 					'toolbar@main': {
 						templateUrl:'/app/shared/templates/toolbar.template.html',
@@ -41,7 +41,7 @@ guestModule
 			})
 	}]);
 guestModule
-	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader){
+	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', 'User', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader, User){
 		var categoryID = $stateParams.categoryID;
 		/**
 		 * Object for toolbar
@@ -65,6 +65,10 @@ guestModule
 
 		Category.show(categoryID)
 			.success(function(data){
+				if(data.groups.length){
+					$state.go('page-not-found');
+				}
+				
 				$scope.category = data;
 				$scope.toolbar.childState = data.name;
 			})
@@ -156,7 +160,7 @@ guestModule
 		// };	
 
 		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
 		}
 
@@ -231,6 +235,18 @@ guestModule
 					Preloader.error();
 				});
 		}
+
+		$scope.viewDescription = function(data){
+			$mdDialog.show(
+			    $mdDialog.alert()
+			    	.parent(angular.element(document.body))
+			        .clickOutsideToClose(true)
+			        .title('Description')
+			        .textContent(data)
+			        .ariaLabel('Description')
+			        .ok('Okay')
+			);
+		}
 		
 		/**
 		 * Object for toolbar
@@ -275,8 +291,8 @@ guestModule
 			$state.go('main.category', {'categoryID': id});
 		};
 
-		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+		$scope.openFile = function(id, categoryID){
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
 		}
 

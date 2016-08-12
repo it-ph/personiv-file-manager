@@ -10,6 +10,12 @@ use App\Http\Requests;
 
 class GroupUserController extends Controller
 {
+    public function relation($group_id, $user_id)
+    {
+        $relation = GroupUser::where('group_id', $group_id)->where('user_id', $user_id)->first();
+
+        return response()->json($relation ? true: false);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -43,8 +49,8 @@ class GroupUserController extends Controller
         for ($i=0; $i < count($request->all()); $i++) { 
             if($request->input($i)){
                 $this->validate($request, [
-                    'id' => 'required|numeric',
-                    'group_id' => 'required|numeric',
+                    $i.'.id' => 'required|numeric',
+                    $i.'.group_id' => 'required|numeric',
                 ]);
 
                 $group_user = new GroupUser;
@@ -88,7 +94,23 @@ class GroupUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        GroupUser::where('group_id', $id)->delete();
+
+        for ($i=0; $i < count($request->all()); $i++) { 
+            if($request->input($i)){
+                $this->validate($request, [
+                    $i.'.id' => 'required|numeric',
+                    $i.'.group_id' => 'required|numeric',
+                ]);
+
+                $group_user = new GroupUser;
+
+                $group_user->user_id = $request->input($i.'.id');
+                $group_user->group_id = $request->input($i.'.group_id');
+
+                $group_user->save();
+            }
+        }
     }
 
     /**

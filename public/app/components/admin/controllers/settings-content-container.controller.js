@@ -123,8 +123,8 @@ adminModule
 		$scope.init = function(refresh){
 			User.index()
 				.success(function(data){
-					if(!data){
-						$state.go('main');
+					if(data.role != 'super-admin'){
+						$state.go('page-not-found');
 					}
 
 					$scope.current_user = data;

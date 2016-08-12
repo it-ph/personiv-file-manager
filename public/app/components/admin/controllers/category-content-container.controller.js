@@ -1,5 +1,5 @@
 adminModule
-	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader){
+	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', 'User', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader, User){
 		var categoryID = $stateParams.categoryID;
 		/**
 		 * Object for toolbar
@@ -23,6 +23,21 @@ adminModule
 
 		Category.show(categoryID)
 			.success(function(data){
+				if(data.groups.length){
+					var groups = [];
+
+					angular.forEach(data.groups, function(item){
+						groups.push(item.id);
+					})
+
+					User.checkFileAccess(groups)
+						.success(function(allowed){
+							if(!allowed){
+								$state.go('page-not-found');
+							}
+						})
+				}
+
 				$scope.category = data;
 				$scope.toolbar.childState = data.name;
 			})
@@ -114,7 +129,7 @@ adminModule
 		};	
 
 		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
 		}
 

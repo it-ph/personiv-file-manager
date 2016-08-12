@@ -16,7 +16,7 @@ adminModule
 						controller: 'mainContentContainerController',
 					},
 					'content@main': {
-						templateUrl: '/app/shared/templates/main-content.template.html',
+						templateUrl: '/app/components/admin/templates/content/main-content.template.html',
 					},
 					'toolbar@main': {
 						templateUrl:'/app/shared/templates/toolbar.template.html',
@@ -56,7 +56,7 @@ adminModule
 			})
 	}]);
 adminModule
-	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader){
+	.controller('categoryContentContainerController', ['$scope', '$state', '$stateParams', '$mdDialog', 'Category', 'Document', 'Preloader', 'User', function($scope, $state, $stateParams, $mdDialog, Category, Document, Preloader, User){
 		var categoryID = $stateParams.categoryID;
 		/**
 		 * Object for toolbar
@@ -80,6 +80,21 @@ adminModule
 
 		Category.show(categoryID)
 			.success(function(data){
+				if(data.groups.length){
+					var groups = [];
+
+					angular.forEach(data.groups, function(item){
+						groups.push(item.id);
+					})
+
+					User.checkFileAccess(groups)
+						.success(function(allowed){
+							if(!allowed){
+								$state.go('page-not-found');
+							}
+						})
+				}
+
 				$scope.category = data;
 				$scope.toolbar.childState = data.name;
 			})
@@ -171,7 +186,7 @@ adminModule
 		};	
 
 		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
 		}
 
@@ -210,41 +225,13 @@ adminModule
 		}
 	}]);
 adminModule
-	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
+	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', 'User', function($scope, $state, $mdDialog, Category, Document, Preloader, User){
 		$scope.show = {};
-		// Init the content of the page
-		Category.index()
-			.success(function(data){
-				$scope.categories = data;
-				angular.forEach(data, function(item){
-					item.charLimit = 25;
-				});
-				$scope.show.categories = true;
-			})
-			.error(function(){
-				Preloader.error();
-			});
-
+		
 		$scope.refresh = function(){
 			$scope.toolbar.userInput = '';
-			$scope.results = [];
-			$scope.show.categories = false;
-			$scope.categories = [];
         	Preloader.loading();
-			Category.index()
-				.success(function(data){
-					$scope.categories = data;
-					$scope.show.categories = true;
-					angular.forEach(data, function(item){
-						item.charLimit = 35;
-					});
-					/* stops both preloader*/
-					Preloader.stop();
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			$scope.init(true);
 		}
 		
 		/**
@@ -290,9 +277,21 @@ adminModule
 			$state.go('main.category', {'categoryID': id});
 		};
 
-		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+		$scope.openFile = function(id, categoryID){
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
+		}
+
+		$scope.viewDescription = function(data){
+			$mdDialog.show(
+			    $mdDialog.alert()
+			    	.parent(angular.element(document.body))
+			        .clickOutsideToClose(true)
+			        .title('Description')
+			        .textContent(data)
+			        .ariaLabel('Description')
+			        .ok('Okay')
+			);
 		}
 
 		$scope.editFolder = function(id){
@@ -340,6 +339,45 @@ adminModule
 		    	return;
 		    });
 		}
+
+		// Init the content of the page
+		$scope.init = function(refresh){
+			User.index()
+				.then(function(data){
+					$scope.user = data.data;
+					
+					$scope.groups = [];
+
+					angular.forEach($scope.user.groups, function(group){
+						$scope.groups.push(group.id);
+					});
+
+					return $scope.groups;
+				})
+				.then(function(groups){
+					Category.index()
+						.success(function(data){
+							$scope.public = data;
+							$scope.show.categories = true;
+						})
+
+					Category.userGroups($scope.groups)
+						.success(function(data){
+							$scope.private = data;
+
+							if(refresh){
+								Preloader.stop();
+								Preloader.stop();
+							}
+
+						})
+						.error(function(){
+							Preloader.error();
+						});
+				})
+		}
+
+		$scope.init();
 	}]);
 adminModule
 	.controller('settingsContentContainerController', ['$scope', '$state', '$mdDialog', 'Preloader', 'Group', 'User', function($scope, $state, $mdDialog, Preloader, Group, User){
@@ -466,8 +504,8 @@ adminModule
 		$scope.init = function(refresh){
 			User.index()
 				.success(function(data){
-					if(!data){
-						$state.go('main');
+					if(data.role != 'super-admin'){
+						$state.go('page-not-found');
 					}
 
 					$scope.current_user = data;
@@ -498,8 +536,14 @@ adminModule
 		$scope.init();
 	}]);
 adminModule
-	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
+	.controller('addCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', 'User', 'CategoryGroup', function($scope, $mdDialog, Category, Preloader, User, CategoryGroup){
 		$scope.category = {};
+		$scope.category.groups = [];
+		User.index()
+			.success(function(data){
+				$scope.groups = data.groups;
+			});
+
 		var busy = false;
 
 		$scope.cancel = function(){
@@ -516,21 +560,40 @@ adminModule
 			}
 			else{
 				/* Starts Preloader */
-				Preloader.loading();
+				// Preloader.loading();
 				/**
 				 * Stores Single Record
 				*/
 				if(!busy){
-					busy = true;
-					Category.store($scope.category)
-						.success(function(){
-							// Stops Preloader 
-							Preloader.stop();
-							busy = false;
-						})
-						.error(function(){
-							Preloader.error()
-						});
+					if(($scope.private && $scope.category.groups.length) || (!$scope.private && !$scope.category.groups.length)){
+						busy = true;
+						Category.store($scope.category)
+							.success(function(data){
+								if(data){
+									angular.forEach($scope.category.groups, function(item){
+										item.category_id = data;
+									});
+
+									CategoryGroup.store($scope.category.groups)
+										.success(function(){
+											// Stops Preloader 
+											Preloader.stop();
+											busy = false;		
+										})
+								}
+								else{
+									// Stops Preloader 
+									Preloader.stop();
+									busy = false;
+								}
+							})
+							.error(function(){
+								Preloader.error()
+							});
+					}
+					else{
+						$scope.show = true;
+					}
 				}
 			}
 		}
@@ -775,13 +838,35 @@ adminModule
 		}
 	}]);
 adminModule
-	.controller('editCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', function($scope, $mdDialog, Category, Preloader){
+	.controller('editCategoryDialogController', ['$scope', '$mdDialog', 'Category', 'Preloader', 'User', 'CategoryGroup', function($scope, $mdDialog, Category, Preloader, User, CategoryGroup){
 		var categoryID = Preloader.get();
 
-		Category.show(categoryID)
-			.success(function(data){
-				$scope.category = data;
-			});
+		User.index()
+			.then(function(data){
+				$scope.groups = data.data.groups;
+
+				return data.data;
+			})
+			.then(function(groups){
+				// console.log(groups);
+				Category.show(categoryID)
+					.success(function(data){
+						$scope.private = data.groups.length ? true : false;
+						$scope.category = data;
+						$scope.category.groups = [];
+
+						angular.forEach($scope.groups, function(item, key){
+							$scope.category.groups.push(null);
+							CategoryGroup.relation(categoryID, item.id)
+								.success(function(related){
+									if(related){
+										$scope.category.groups.splice(key, 1, item);
+									}
+								})
+						});
+					});
+			})
+
 		
 		var busy = false;
 
@@ -799,21 +884,56 @@ adminModule
 			}
 			else{
 				/* Starts Preloader */
-				Preloader.loading();
+				// Preloader.loading();
 				/**
 				 * Stores Single Record
 				*/
-				if(!busy){
-					busy = true;
-					Category.update(categoryID, $scope.category)
-						.success(function(){
-							// Stops Preloader 
-							Preloader.stop();
-							busy = false;
-						})
-						.error(function(){
-							Preloader.error()
-						});
+				if($scope.private){
+					$scope.count = 0;
+
+					angular.forEach($scope.category.groups, function(item){
+						if(item){
+							$scope.count++;
+						}
+					});
+
+					if(!$scope.count){
+						$scope.show = true;
+					}
+				}
+
+				if(!busy){;
+					if(($scope.private && $scope.count) || (!$scope.private)){
+						busy = true;
+						Category.update(categoryID, $scope.category)
+							.success(function(data){
+								if(data){
+									if($scope.private){
+										angular.forEach($scope.category.groups, function(item){
+											if(item){
+												item.category_id = data;
+												item.include = true;
+											}
+										});
+									}
+
+									CategoryGroup.update(categoryID, $scope.category.groups)
+										.success(function(){
+											// Stops Preloader 
+											Preloader.stop();
+											busy = false;		
+										})
+								}
+								else{
+									// Stops Preloader 
+									busy = false;
+									Preloader.stop();
+								}
+							})
+							.error(function(){
+								Preloader.error()
+							});
+					}
 				}
 			}
 		}
@@ -933,7 +1053,7 @@ adminModule
 		};
 	}]);
 adminModule
-	.controller('editGroupDialogController', ['$scope', '$mdDialog', 'Group', 'Preloader', function($scope, $mdDialog, Group, Preloader){
+	.controller('editGroupDialogController', ['$scope', '$mdDialog', 'Group', 'Preloader', 'User', 'GroupUser', function($scope, $mdDialog, Group, Preloader, User, GroupUser){
 		var groupID = Preloader.get();
 		var busy = false;
 
@@ -949,9 +1069,29 @@ adminModule
 			$mdDialog.cancel();
 		}
 
+
 		Group.show(groupID)
 			.success(function(data){
 				$scope.group = data;
+				$scope.group.users = [];
+				var count = 0;
+				
+				User.all()
+					.success(function(data){
+						$scope.users = data;
+
+						angular.forEach(data, function(user, idx){
+							$scope.group.users.push(null);
+							GroupUser.relation($scope.group.id, user.id)
+								.success(function(related){
+									if(related){
+										$scope.group.users.splice(idx, 1, user);
+									}
+								})
+						});
+					});
+
+
 			})
 
 		$scope.submit = function(){
@@ -968,14 +1108,39 @@ adminModule
 				/**
 				 * Stores Single Record
 				*/
-				if(!busy && !$scope.duplicate){
+				$scope.count = 0;
+				angular.forEach($scope.group.users, function(item){
+					if(item){
+						$scope.count++;
+					}
+				});
+
+				if(!$scope.count){
+					$scope.show = true;
+				}
+
+				if(!busy && !$scope.duplicate && $scope.count){
 					busy = true;
 					Group.update(groupID, $scope.group)
 						.success(function(data){
 							busy = false;
-							if(!data){
-								// Stops Preloader 
-								Preloader.stop();
+							if(!typeof(data) === 'string'){
+								$scope.duplicate = data;
+							}
+							else if(typeof(data) === 'string'){
+								angular.forEach($scope.group.users, function(item){
+									if(item){
+										item.group_id = data;
+									}
+								});
+
+								GroupUser.update(groupID, $scope.group.users)
+									.success(function(){
+										Preloader.stop();
+									})
+									.error(function(){
+										Preloader.error();
+									})
 							}
 						})
 						.error(function(){

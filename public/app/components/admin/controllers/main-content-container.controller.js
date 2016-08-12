@@ -1,39 +1,11 @@
 adminModule
-	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', function($scope, $state, $mdDialog, Category, Document, Preloader){
+	.controller('mainContentContainerController', ['$scope', '$state', '$mdDialog', 'Category', 'Document', 'Preloader', 'User', function($scope, $state, $mdDialog, Category, Document, Preloader, User){
 		$scope.show = {};
-		// Init the content of the page
-		Category.index()
-			.success(function(data){
-				$scope.categories = data;
-				angular.forEach(data, function(item){
-					item.charLimit = 25;
-				});
-				$scope.show.categories = true;
-			})
-			.error(function(){
-				Preloader.error();
-			});
-
+		
 		$scope.refresh = function(){
 			$scope.toolbar.userInput = '';
-			$scope.results = [];
-			$scope.show.categories = false;
-			$scope.categories = [];
         	Preloader.loading();
-			Category.index()
-				.success(function(data){
-					$scope.categories = data;
-					$scope.show.categories = true;
-					angular.forEach(data, function(item){
-						item.charLimit = 35;
-					});
-					/* stops both preloader*/
-					Preloader.stop();
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			$scope.init(true);
 		}
 		
 		/**
@@ -79,9 +51,21 @@ adminModule
 			$state.go('main.category', {'categoryID': id});
 		};
 
-		$scope.openFile = function(id){
-			var win = window.open('/document-view/' + id);
+		$scope.openFile = function(id, categoryID){
+			var win = window.open('/document-view/' + id + '/category/' + categoryID);
 			win.focus();
+		}
+
+		$scope.viewDescription = function(data){
+			$mdDialog.show(
+			    $mdDialog.alert()
+			    	.parent(angular.element(document.body))
+			        .clickOutsideToClose(true)
+			        .title('Description')
+			        .textContent(data)
+			        .ariaLabel('Description')
+			        .ok('Okay')
+			);
 		}
 
 		$scope.editFolder = function(id){
@@ -129,4 +113,43 @@ adminModule
 		    	return;
 		    });
 		}
+
+		// Init the content of the page
+		$scope.init = function(refresh){
+			User.index()
+				.then(function(data){
+					$scope.user = data.data;
+					
+					$scope.groups = [];
+
+					angular.forEach($scope.user.groups, function(group){
+						$scope.groups.push(group.id);
+					});
+
+					return $scope.groups;
+				})
+				.then(function(groups){
+					Category.index()
+						.success(function(data){
+							$scope.public = data;
+							$scope.show.categories = true;
+						})
+
+					Category.userGroups($scope.groups)
+						.success(function(data){
+							$scope.private = data;
+
+							if(refresh){
+								Preloader.stop();
+								Preloader.stop();
+							}
+
+						})
+						.error(function(){
+							Preloader.error();
+						});
+				})
+		}
+
+		$scope.init();
 	}]);
