@@ -9,16 +9,18 @@ guestModule
 		$scope.toolbar.showBack = true;
 
 		$scope.searchUserInput = function(){
-			$scope.document.show = false;
-			Preloader.loading();
-			Document.search($scope.toolbar)
-				.success(function(data){
-					$scope.document.results = data;
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			if($scope.toolbar.userInput){
+				$scope.document.show = false;
+				Preloader.loading();
+				Document.search($scope.toolbar, categoryID)
+					.success(function(data){
+						$scope.document.results = data;
+						Preloader.stop();
+					})
+					.error(function(){
+						Preloader.error();
+					});
+			}
 		};
 
 		Category.show(categoryID)

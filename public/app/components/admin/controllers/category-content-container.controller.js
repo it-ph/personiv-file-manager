@@ -11,7 +11,7 @@ adminModule
 		$scope.searchUserInput = function(){
 			$scope.document.show = false;
 			Preloader.loading();
-			Document.search($scope.toolbar)
+			Document.search($scope.toolbar, categoryID)
 				.success(function(data){
 					$scope.document.results = data;
 					Preloader.stop();

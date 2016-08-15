@@ -16,19 +16,27 @@ adminModule
 		$scope.toolbar.childState = 'Home';
 
 		$scope.searchUserInput = function(){
-			$scope.show.categories = false;
-			Preloader.loading();
-			Document.search($scope.toolbar)
-				.success(function(data){
-					$scope.results = data;
-					angular.forEach(data, function(item){
-						item.charLimit = 35;
+			if($scope.toolbar.userInput){
+				$scope.show.categories = false;
+				Preloader.loading();
+				Document.search($scope.toolbar)
+					.success(function(data){
+						angular.forEach(data.groups, function(group){
+							group.documents = [];
+							
+							angular.forEach(group.categories, function(category){
+								angular.forEach(category.documents, function(document){
+									group.documents.push(document);
+								});
+							});
+						});
+						$scope.result = data;
+						Preloader.stop();
+					})
+					.error(function(){
+						Preloader.error();
 					});
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			}
 		};
 
 		$scope.fab = {};
@@ -90,6 +98,28 @@ adminModule
 	        .then(function() {
 	          	$scope.refresh();
 	        });
+		}
+
+		$scope.deleteCategory = function(id){
+			var confirm = $mdDialog.confirm()
+		        .title('Delete category')
+		        .textContent('Are you sure you want to delete this category ?')
+		        .ariaLabel('Delete Category')
+		        .ok('Delete')
+		        .cancel('Cancel');
+		    $mdDialog.show(confirm).then(function() {
+		    	Preloader.loading();
+		    	Category.delete(id)
+		    		.success(function(){
+		    			Preloader.stop();
+		    			$scope.refresh();
+		    		})
+		    		.error(function(){
+		    			Preloader.error();
+		    		});
+		    }, function() {
+		    	return;
+		    });
 		}
 
 		$scope.delete = function(id){

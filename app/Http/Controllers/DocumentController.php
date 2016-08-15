@@ -16,33 +16,116 @@ use Response;
 
 class DocumentController extends Controller
 {
-    public function search(Request $request)
+    public function search(Request $request, $id)
     {
-        $document = DB::table('documents')
-            ->join('tags', 'tags.document_id', '=', 'documents.id')
-            ->select(
-                '*',
-                DB::raw('UPPER(LEFT(documents.file_name, 1)) as first_letter'),
-                DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
-            )
-            ->where('documents.file_name', 'like', '%'. $request->userInput .'%')
-            ->orWhere('tags.name', 'like', '%'. $request->userInput .'%')
-            ->orderBy('documents.file_name')
-            ->groupBy('documents.id')
-            ->get();
+        $id = (int)$id;
+        $this->category_id = $id;
+        $this->userInput = $request->userInput;
+        
+        if($id)
+        {
+            $documents = DB::table('documents')
+                ->join('tags', 'tags.document_id', '=', 'documents.id')
+                ->select(
+                    '*',
+                    DB::raw('UPPER(LEFT(documents.file_name, 1)) as first_letter'),
+                    DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
+                )
+                ->where(function($query){ $query->where('documents.category_id', $this->category_id)->where('documents.file_name', 'like', '%'. $this->userInput .'%'); })
+                ->orWhere(function($query){ $query->where('documents.category_id', $this->category_id)->where('tags.name', 'like', '%'. $this->userInput .'%'); })
+                ->orderBy('documents.file_name')
+                ->groupBy('documents.id')
+                ->get();
+        }
+        else if($request->user()){
+            $user = User::with(['groups' => function($query){ $query->with('categories'); }])->where('id', $request->user()->id)->first();
 
-            foreach ($document as $document_key => $document_value) {
-                $tags = Tag::where('document_id', $document_value->document_id)->get();
-                
-                $document_value->tags = array();
-                
-                foreach ($tags as $tags_key => $tags_value) {
-                    array_push($document_value->tags, $tags_value->name);
+            foreach ($user->groups as $group_key => $group) {
+                foreach ($group->categories as $category_key => $category) {
+                    $this->category = $category;
+
+                    $category->documents = DB::table('documents')
+                        ->join('tags', 'tags.document_id', '=', 'documents.id')
+                        ->select(
+                            '*',
+                            DB::raw('UPPER(LEFT(documents.file_name, 1)) as first_letter'),
+                            DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
+                        )
+                        ->where(function($query){ $query->where('documents.category_id', $this->category->id)->where('documents.file_name', 'like', '%'. $this->userInput .'%'); })
+                        ->orWhere(function($query){ $query->where('documents.category_id', $this->category->id)->where('tags.name', 'like', '%'. $this->userInput .'%'); })
+                        ->orderBy('documents.file_name')
+                        ->groupBy('documents.id')
+                        ->get();
+
+                    foreach ($category->documents as $document_key => $document) {
+                        $tags = Tag::where('document_id', $document->document_id)->get();
+                        
+                        $document->tags = array();
+                        
+                        foreach ($tags as $tags_key => $tags_value) {
+                            array_push($document->tags, $tags_value->name);
+                        }
+                    
+                        $document->category = Category::with('groups')->where('id', $document->category_id)->first();
+                    }
                 }
             }
 
+            $user->public = DB::table('documents')
+                ->join('tags', 'tags.document_id', '=', 'documents.id')
+                ->select(
+                    '*',
+                    DB::raw('UPPER(LEFT(documents.file_name, 1)) as first_letter'),
+                    DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
+                )
+                ->where('documents.file_name', 'like', '%'. $request->userInput .'%')
+                ->orWhere('tags.name', 'like', '%'. $request->userInput .'%')
+                ->orderBy('documents.file_name')
+                ->groupBy('documents.id')
+                ->get();
 
-        return $document;
+            foreach ($user->public as $document_key => $document) {
+                $tags = Tag::where('document_id', $document->document_id)->get();
+                
+                $document->tags = array();
+                
+                foreach ($tags as $tags_key => $tags_value) {
+                    array_push($document->tags, $tags_value->name);
+                }
+            
+                $document->category = Category::with('groups')->where('id', $document->category_id)->first();
+            }
+
+            return $user;    
+        }
+        else{
+            $documents = DB::table('documents')
+                ->join('tags', 'tags.document_id', '=', 'documents.id')
+                ->select(
+                    '*',
+                    DB::raw('UPPER(LEFT(documents.file_name, 1)) as first_letter'),
+                    DB::raw('DATE_FORMAT(documents.created_at, "%b. %d, %Y") as created_at_formatted')
+                )
+                ->where('documents.file_name', 'like', '%'. $request->userInput .'%')
+                ->orWhere('tags.name', 'like', '%'. $request->userInput .'%')
+                ->orderBy('documents.file_name')
+                ->groupBy('documents.id')
+                ->get();
+        }
+
+        foreach ($documents as $document_key => $document) {
+            $tags = Tag::where('document_id', $document->document_id)->get();
+            
+            $document->tags = array();
+            
+            foreach ($tags as $tags_key => $tags_value) {
+                array_push($document->tags, $tags_value->name);
+            }
+        
+            $document->category = Category::with('groups')->where('id', $document->category_id)->first();
+        }
+
+        return $documents;
     }
     public function view($id, $categoryID)
     {

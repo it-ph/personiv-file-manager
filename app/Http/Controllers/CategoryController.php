@@ -27,7 +27,7 @@ class CategoryController extends Controller
     {
         $this->groups = $request->all();
 
-        $categories = Group::with('categories')->whereIn('id', $request->all())->get();
+        $categories = Group::with(['categories' => function($query){ $query->with('documents'); }])->whereIn('id', $request->all())->get();
 
         return $categories;
     }
@@ -39,7 +39,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return Category::with('groups')->get();
+        return Category::with('groups', 'documents')->get();
     }
 
     /**
@@ -129,6 +129,6 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Category::where('id', $id)->delete();
     }
 }

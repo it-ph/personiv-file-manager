@@ -21,8 +21,8 @@ sharedModule
 			paginateCategory: function(id, page){
 				return $http.get(urlBase + '-paginate/' + id + '?page=' + page);
 			},
-			search: function(data){
-				return $http.post(urlBase + '-search', data);
+			search: function(data, id){
+				return $http.post(urlBase + '-search/' + id, data);
 			},
 		};
 	}])

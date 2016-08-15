@@ -51,16 +51,18 @@ guestModule
 		$scope.toolbar.showBack = true;
 
 		$scope.searchUserInput = function(){
-			$scope.document.show = false;
-			Preloader.loading();
-			Document.search($scope.toolbar)
-				.success(function(data){
-					$scope.document.results = data;
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			if($scope.toolbar.userInput){
+				$scope.document.show = false;
+				Preloader.loading();
+				Document.search($scope.toolbar, categoryID)
+					.success(function(data){
+						$scope.document.results = data;
+						Preloader.stop();
+					})
+					.error(function(){
+						Preloader.error();
+					});
+			}
 		};
 
 		Category.show(categoryID)
@@ -256,19 +258,21 @@ guestModule
 		$scope.toolbar.childState = 'Home';
 
 		$scope.searchUserInput = function(){
-			$scope.show.categories = false;
-			Preloader.loading();
-			Document.search($scope.toolbar)
-				.success(function(data){
-					$scope.results = data;
-					angular.forEach(data, function(item){
-						item.charLimit = 35;
+			if($scope.toolbar.userInput){
+				$scope.show.categories = false;
+				Preloader.loading();
+				Document.search($scope.toolbar)
+					.success(function(data){
+						$scope.results = data;
+						angular.forEach(data, function(item){
+							item.charLimit = 35;
+						});
+						Preloader.stop();
+					})
+					.error(function(){
+						Preloader.error();
 					});
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			}
 		};
 
 		// $scope.fab = {};

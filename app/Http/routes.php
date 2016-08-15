@@ -49,7 +49,7 @@ Route::get('/home', 'HomeController@index');
 	Route::resource('user', 'UserController');
 
 	/* Search */
-	Route::post('document-search', 'DocumentController@search');
+	Route::post('document-search/{categoryID}', 'DocumentController@search');
 
 	Route::post('user-check-password', 'UserController@checkPassword');
 	Route::post('user-change-password', 'UserController@changePassword');

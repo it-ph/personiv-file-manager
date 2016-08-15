@@ -56,19 +56,21 @@ guestModule
 		$scope.toolbar.childState = 'Home';
 
 		$scope.searchUserInput = function(){
-			$scope.show.categories = false;
-			Preloader.loading();
-			Document.search($scope.toolbar)
-				.success(function(data){
-					$scope.results = data;
-					angular.forEach(data, function(item){
-						item.charLimit = 35;
+			if($scope.toolbar.userInput){
+				$scope.show.categories = false;
+				Preloader.loading();
+				Document.search($scope.toolbar)
+					.success(function(data){
+						$scope.results = data;
+						angular.forEach(data, function(item){
+							item.charLimit = 35;
+						});
+						Preloader.stop();
+					})
+					.error(function(){
+						Preloader.error();
 					});
-					Preloader.stop();
-				})
-				.error(function(){
-					Preloader.error();
-				});
+			}
 		};
 
 		// $scope.fab = {};
