@@ -681,19 +681,22 @@ adminModule
 				});
 			}
 			else{
+				// console.log($scope.document);
 				if(!busy && $scope.pdfUploader.queue.length){
 					busy = true;
 					/* Starts Preloader */
-					Preloader.saving();
+					// Preloader.saving();
 					/**
 					 * Stores Single Record
 					*/
 					Document.store($scope.document)
-						.success(function(){
-							$scope.pdfUploader.uploadAll();
-							// Stops Preloader 
-							Preloader.stop();
+						.success(function(noTags){
 							busy = false;
+							if(!noTags){
+								$scope.pdfUploader.uploadAll();
+								// Stops Preloader 
+								Preloader.stop();
+							}
 						})
 						.error(function(){
 							Preloader.error()
@@ -1052,7 +1055,7 @@ adminModule
 				if((!busy && $scope.pdfUploader.queue.length && $scope.document.file_removed) || (!busy && !$scope.document.file_removed)){
 					busy = true;
 					/* Starts Preloader */
-					Preloader.saving();
+					// Preloader.saving();
 					/**
 					 * Stores Single Record
 					*/
@@ -1066,14 +1069,17 @@ adminModule
 					}
 
 					Document.update(documentID, $scope.document)
-						.success(function(){
-							if($scope.pdfUploader.queue.length)
-							{
-								$scope.pdfUploader.uploadAll();
-							}
-							// Stops Preloader 
-							Preloader.stop();
+						.success(function(noTags){
 							busy = false;
+							if(!noTags)
+							{
+								if($scope.pdfUploader.queue.length)
+								{
+									$scope.pdfUploader.uploadAll();
+								}
+								// Stops Preloader 
+								Preloader.stop();
+							}
 						})
 						.error(function(){
 							Preloader.error()

@@ -51,19 +51,22 @@ adminModule
 				});
 			}
 			else{
+				// console.log($scope.document);
 				if(!busy && $scope.pdfUploader.queue.length){
 					busy = true;
 					/* Starts Preloader */
-					Preloader.saving();
+					// Preloader.saving();
 					/**
 					 * Stores Single Record
 					*/
 					Document.store($scope.document)
-						.success(function(){
-							$scope.pdfUploader.uploadAll();
-							// Stops Preloader 
-							Preloader.stop();
+						.success(function(noTags){
 							busy = false;
+							if(!noTags){
+								$scope.pdfUploader.uploadAll();
+								// Stops Preloader 
+								Preloader.stop();
+							}
 						})
 						.error(function(){
 							Preloader.error()

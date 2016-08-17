@@ -218,6 +218,10 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+        if(!count($request->tags)){
+            return response()->json(true);
+        }
+
         $this->validate($request, [
             'file_name' => 'required',
             'category_id' => 'required|numeric',
@@ -260,7 +264,7 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        return Document::where('id', $id)->first();
+        return Document::with('tags')->where('id', $id)->first();
     }
 
     /**
@@ -283,6 +287,10 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if(!count($request->tags)){
+            return response()->json(true);
+        }
+
         $this->validate($request, [
             'file_name' => 'required',
             'category_id' => 'required|numeric',
@@ -305,7 +313,7 @@ class DocumentController extends Controller
         $document->save();
 
         foreach ($request->tags as $key => $value) {
-            $confirm_tag = Tag::where('name', $value)->first();
+            $confirm_tag = Tag::where('name', $value)->where('document_id', $id)->first();
             if(!$confirm_tag)
             {
                 $tag = new Tag;
