@@ -46,7 +46,7 @@
 
                 <!-- Branding Image -->
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="/assets/img/Personiv-Final_2C_transparent-300x77.png" alt="">
+                    <img src="/assets/img/2Color-Logo_247px-1024x195.png" alt="">
                 </a>
             </div>
 
